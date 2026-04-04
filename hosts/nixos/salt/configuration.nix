@@ -15,6 +15,10 @@
 
       hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
 
+      networking.firewall = {
+        allowedTCPPorts = [ 25565 ];
+      };
+
       networking.useNetworkd = true;
       systemd.network.enable = true;
       systemd.network.networks."10-eth" = {

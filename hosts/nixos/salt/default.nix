@@ -21,6 +21,7 @@ in
     modules = [
       config.flake.modules.nixos.salt
       inputs.disko.nixosModules.default
+      inputs.quadlet-nix.nixosModules.quadlet
     ];
   };
 
@@ -36,6 +37,7 @@ in
         base
         ssh
         tailscale
+        mc-server
       ]);
   };
 }
