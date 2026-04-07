@@ -36,6 +36,7 @@ in
       ++ (with config.flake.modules.nixos; [
         base
         uefi
+        zram
 
         callum
 
