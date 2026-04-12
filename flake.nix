@@ -8,6 +8,10 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
     deploy-rs.url = "github:serokell/deploy-rs";
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     disko = {
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";

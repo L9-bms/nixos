@@ -14,6 +14,7 @@
 
         impermanence-zfs
         persistence
+        sops
 
         callum
         colin

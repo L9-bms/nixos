@@ -21,4 +21,24 @@ in
       programs.fish.enable = true;
       nix.settings.trusted-users = [ username ];
     };
+
+  flake.modules.nixos.sops =
+    {
+      config,
+      lib,
+      ...
+    }:
+    {
+      sops.secrets."passwords/${username}" = {
+        owner = "root";
+        group = "root";
+        mode = "0400";
+        neededForUsers = true;
+      };
+
+      users.users.${username} = {
+        initialPassword = lib.mkForce null;
+        hashedPasswordFile = config.sops.secrets."passwords/${username}".path;
+      };
+    };
 }
