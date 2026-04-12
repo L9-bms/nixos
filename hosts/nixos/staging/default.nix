@@ -16,7 +16,7 @@
 
         ssh
         tailscale
-
+        samba
         gateway
         monitoring
       ]);

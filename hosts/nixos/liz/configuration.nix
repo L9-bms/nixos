@@ -28,5 +28,13 @@
         device = "/dev/disk/by-uuid/0b878ab4-2310-4b8e-92e8-7ef5f47f75f8";
         fsType = "ext4";
       };
+
+      modules.samba.shares = {
+        tank_colin = "/tank/colin";
+        callum = "/tank/callum";
+        photo = "/tank/photo";
+        media = "/mnt/media";
+        torrents = "/tank/torrents";
+      };
     };
 }

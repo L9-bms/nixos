@@ -37,5 +37,9 @@
           DNSStubListener = no
         '';
       };
+
+      modules.samba.shares = {
+        test = "/home/callum";
+      };
     };
 }
