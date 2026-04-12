@@ -5,7 +5,6 @@
       services.grafana = {
         enable = true;
         settings.server = {
-          domain = "grafana.7sref";
           http_addr = "127.0.0.1";
           http_port = 2342;
         };
@@ -62,6 +61,8 @@
   flake.modules.nixos.gateway =
     { config, ... }:
     {
+      services.grafana.settings.server.domain = "grafana.${config.modules.gateway.tld}";
+
       modules.gateway.localServices = [
         {
           name = "Grafana";
