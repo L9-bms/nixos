@@ -121,6 +121,8 @@ in
           };
           containerConfig = {
             image = "jellyfin/jellyfin";
+            # healthcheck systemd unit exits non-zero while status is "starting", preventing successful deploy
+            healthInterval = "disable";
             environments = {
               JELLYFIN_PublishedServerUrl = "https://jellyfin.7sref";
             };
