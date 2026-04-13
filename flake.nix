@@ -8,17 +8,17 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
     deploy-rs.url = "github:serokell/deploy-rs";
-    sops-nix = {
-      url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    disko = {
-      url = "github:nix-community/disko";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    sops-nix.url = "github:Mic92/sops-nix";
+    disko.url = "github:nix-community/disko";
     impermanence.url = "github:nix-community/impermanence";
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
     prism-tower.url = "github:L9-bms/prism-tower";
+
+    deploy-rs.inputs.nixpkgs.follows = "nixpkgs";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+    disko.inputs.nixpkgs.follows = "nixpkgs";
+    impermanence.inputs.nixpkgs.follows = "nixpkgs";
+    prism-tower.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
