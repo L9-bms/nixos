@@ -1,11 +1,4 @@
-let
-  username = "colin";
-in
+{ self, ... }:
 {
-  flake.modules.nixos.${username} = {
-    users.users.${username} = {
-      isNormalUser = true;
-      home = "/home/${username}";
-    };
-  };
+  flake.modules = (self.factory.user "colin" false false);
 }
