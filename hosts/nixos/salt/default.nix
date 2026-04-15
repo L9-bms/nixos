@@ -14,7 +14,6 @@
 
         ssh
         tailscale
-        mc-server
       ]);
   };
 }
