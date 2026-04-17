@@ -6,13 +6,13 @@
         enable = true;
         openDefaultPorts = true;
         dataDir = config.utils.dataDir "syncthing";
-        settings = {
-          gui.insecureSkipHostcheck = true;
-        };
+        configDir = config.utils.dataDir "syncthing";
       };
     };
 
   flake.modules.nixos.gateway = {
+    services.syncthing.settings.gui.insecureSkipHostcheck = true;
+
     modules.gateway.localServices = [
       {
         name = "Syncthing";
