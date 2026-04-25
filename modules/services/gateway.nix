@@ -6,14 +6,26 @@
     let
       caddyDataDir = config.utils.dataDir "caddy";
       fqdn = domainName: "${domainName}.${config.modules.gateway.tld}";
-      prismTowerPkg = inputs.prism-tower.lib.mkPrismTower {
+
+      prismTowerPkg = inputs.prism-tower.lib.mkPackage {
         inherit pkgs;
-        services = config.services.prism-tower.services;
+        services = map (service: {
+          name = service.name;
+          url = "https://${fqdn service.domainName}";
+          iconUrl = service.iconUrl;
+          category = service.category;
+        }) (builtins.filter (service: !service.hidden) config.modules.gateway.localServices);
+        links = [
+          {
+            name = "Sentral";
+            url = "https://fortstreeths.sentral.com.au/auth/portal";
+          }
+        ];
+        # TODO: derive this value from the config somehow
+        searchUrl = "https://${fqdn "searx"}/search";
       };
     in
     {
-      imports = [ inputs.prism-tower.nixosModules.default ];
-
       options.modules.gateway = {
         tld = lib.mkOption {
           type = lib.types.str;
@@ -141,16 +153,6 @@
                 '';
               };
             };
-        };
-
-        services.prism-tower = {
-          enable = true;
-          services = map (service: {
-            name = service.name;
-            url = "https://${fqdn service.domainName}";
-            iconUrl = service.iconUrl;
-            category = service.category;
-          }) (builtins.filter (service: !service.hidden) config.modules.gateway.localServices);
         };
       };
     };
