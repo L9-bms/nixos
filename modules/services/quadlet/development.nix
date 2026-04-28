@@ -28,6 +28,27 @@ in
             ];
           };
         };
+
+        containers.forgejo = {
+          serviceConfig = {
+            Restart = "always";
+            RestartSec = "10";
+          };
+          containerConfig = {
+            image = "codeberg.org/forgejo/forgejo:15";
+            environments = {
+              USER_UID = "1000";
+              USER_GID = "1000";
+            };
+            networks = [ networks.${networkName}.ref ];
+            ip = "172.23.0.3";
+            publishPorts = [ "222:22" ];
+            volumes = [
+              "${config.utils.dataDir "gitea"}:/data"
+              "/etc/localtime:/etc/localtime:ro"
+            ];
+          };
+        };
       };
     };
 
@@ -38,6 +59,13 @@ in
         domainName = "jenkins";
         iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jenkins.png";
         addr = "172.23.0.2:8080";
+        category = "Development";
+      }
+      {
+        name = "Forgejo";
+        domainName = "git";
+        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/forgejo.png";
+        addr = "172.23.0.3:3000";
         category = "Development";
       }
     ];
