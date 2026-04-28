@@ -2,11 +2,15 @@
   flake.modules.nixos.quadlet-productivity =
     { config, ... }:
     let
-      inherit (config.virtualisation.quadlet) networks;
+      inherit (config.virtualisation.quadlet) networks builds;
+      copilotApiSrc = fetchGit {
+        url = "https://github.com/caozhiyuan/copilot-api.git";
+        rev = "c4ab3b779066b9a176e8e73351f4b23da047e8e7";
+      };
     in
     {
       virtualisation.quadlet = {
-        networks.openwebui.networkConfig = {
+        networks.ai.networkConfig = {
           subnets = [ "172.22.0.0/16" ];
           disableDns = true;
         };
@@ -19,7 +23,7 @@
           containerConfig = {
             image = "searxng/searxng:latest";
             volumes = [ "${config.utils.dataDir "searxng"}:/etc/searxng:rw" ];
-            networks = [ networks.openwebui.ref ];
+            networks = [ networks.ai.ref ];
             ip = "172.22.0.3";
             dropCapabilities = [ "ALL" ];
             addCapabilities = [
@@ -46,13 +50,26 @@
               SEARXNG_QUERY_URL = "http://172.22.0.3:8080/search?q=<query>";
               WEBUI_AUTH = "False";
             };
-            networks = [ networks.openwebui.ref ];
+            networks = [ networks.ai.ref ];
             ip = "172.22.0.2";
-            publishPorts = [ "8088:8080" ];
+            publishPorts = [ "8088:8080" ]; # keep here for dad
             volumes = [
               "${config.utils.dataDir "open-webui"}:/app/backend/data"
             ];
           };
+        };
+
+        containers.ai-copilot-api.containerConfig = {
+          image = builds.copilot-api.ref;
+          networks = [ networks.ai.ref ];
+          ip = "172.22.0.4";
+          publishPorts = [ "4141:4141" ];
+          volumes = [
+            "${config.utils.dataDir "copilot-api"}:/root/.local/share/copilot-api"
+          ];
+        };
+        builds.copilot-api.buildConfig = {
+          workdir = "${copilotApiSrc}";
         };
       };
 
@@ -85,6 +102,13 @@
         domainName = "chat";
         iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui.png";
         addr = "172.22.0.2:8080";
+        category = "Productivity";
+      }
+      {
+        name = "Copilot API";
+        domainName = "copilot";
+        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/github-copilot.png";
+        addr = "172.22.0.4:4141";
         category = "Productivity";
       }
       {
