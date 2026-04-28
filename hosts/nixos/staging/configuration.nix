@@ -37,5 +37,7 @@
           DNSStubListener = no
         '';
       };
+
+      modules.gateway.tld = "staging.7sref";
     };
 }

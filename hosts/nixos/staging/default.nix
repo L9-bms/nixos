@@ -16,6 +16,9 @@
 
         ssh
         tailscale
+
+        gateway
+        quadlet-productivity
       ]);
   };
 }
