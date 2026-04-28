@@ -25,10 +25,14 @@
                 browseable = true;
                 "read only" = false;
                 "guest ok" = false;
+                "follow symlinks" = true;
+                "wide links" = true;
               }) config.modules.samba.shares;
             in
             {
-              global = { };
+              global = {
+                "allow insecure wide links" = true;
+              };
             }
             // shares;
         };
