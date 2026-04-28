@@ -1,15 +1,12 @@
-let
-  networkName = "ai";
-in
 {
-  flake.modules.nixos.quadlet-ai =
+  flake.modules.nixos.quadlet-productivity =
     { config, ... }:
     let
       inherit (config.virtualisation.quadlet) networks;
     in
     {
       virtualisation.quadlet = {
-        networks.${networkName}.networkConfig = {
+        networks.openwebui.networkConfig = {
           subnets = [ "172.22.0.0/16" ];
           disableDns = true;
         };
@@ -22,7 +19,7 @@ in
           containerConfig = {
             image = "searxng/searxng:latest";
             volumes = [ "${config.utils.dataDir "searxng"}:/etc/searxng:rw" ];
-            networks = [ networks.${networkName}.ref ];
+            networks = [ networks.openwebui.ref ];
             ip = "172.22.0.3";
             dropCapabilities = [ "ALL" ];
             addCapabilities = [
@@ -49,13 +46,34 @@ in
               SEARXNG_QUERY_URL = "http://172.22.0.3:8080/search?q=<query>";
               WEBUI_AUTH = "False";
             };
-            networks = [ networks.${networkName}.ref ];
+            networks = [ networks.openwebui.ref ];
             ip = "172.22.0.2";
             publishPorts = [ "8088:8080" ];
             volumes = [
               "${config.utils.dataDir "open-webui"}:/app/backend/data"
             ];
           };
+        };
+      };
+
+      sops.secrets."docker/silverbullet_env" = {
+        owner = "root";
+        group = "root";
+        mode = "0440";
+      };
+
+      virtualisation.quadlet.containers.silverbullet = {
+        serviceConfig = {
+          Restart = "always";
+          RestartSec = "10";
+        };
+        containerConfig = {
+          image = "ghcr.io/silverbulletmd/silverbullet:latest";
+          environmentFiles = [ config.sops.secrets."docker/silverbullet_env".path ];
+          publishPorts = [ "3000:3000" ];
+          volumes = [
+            "${config.utils.dataDir "silverbullet"}:/space"
+          ];
         };
       };
     };
@@ -67,6 +85,13 @@ in
         domainName = "openwebui";
         iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui.png";
         addr = "172.22.0.2:8080";
+        category = "Productivity";
+      }
+      {
+        name = "SilverBullet";
+        domainName = "notes";
+        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/silverbullet.png";
+        addr = "127.0.0.1:3000";
         category = "Productivity";
       }
       {

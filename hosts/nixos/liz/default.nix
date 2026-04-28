@@ -23,12 +23,10 @@
         monitoring
         samba
         syncthing
-        trilium
         qbittorrent
 
-        quadlet-ai
-        quadlet-home-assistant
-        quadlet-evcc
+        quadlet-productivity
+        quadlet-home
         quadlet-media
         quadlet-code
       ]);
