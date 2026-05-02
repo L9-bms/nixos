@@ -51,7 +51,7 @@
               MONGO_INITDB_ROOT_USERNAME = "admin";
               MONGO_INITDB_ROOT_PASSWORD = "secretpassword";
             };
-            volumes = [ "mongo_data:/data/db" ];
+            volumes = [ "${config.users.users.colin.home}/mongo_data:/data/db" ];
             publishPorts = [ "27017:27017" ];
           };
         };
