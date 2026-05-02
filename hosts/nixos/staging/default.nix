@@ -1,24 +1,26 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   flake.modules.nixos."hosts/nixos/staging" = {
-    imports =
-      (with config.flake.nixosModules; [
-        staging-disko
-        staging-configuration
-      ])
-      ++ (with config.flake.modules.nixos; [
-        uefi
-        impermanence-zfs
-        persistence
-        sops
+    imports = [
+      inputs.disko.nixosModules.default
+      ./_disko.nix
+    ]
+    ++ (with config.flake.nixosModules; [
+      staging-configuration
+    ])
+    ++ (with config.flake.modules.nixos; [
+      uefi
+      impermanence-zfs
+      persistence
+      sops
 
-        callum
+      callum
 
-        ssh
-        tailscale
+      ssh
+      tailscale
 
-        gateway
-        quadlet-productivity
-      ]);
+      gateway
+
+    ]);
   };
 }

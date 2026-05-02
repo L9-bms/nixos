@@ -1,19 +1,23 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   flake.modules.nixos."hosts/nixos/salt" = {
-    imports =
-      (with config.flake.nixosModules; [
-        salt-disko
-        salt-configuration
-      ])
-      ++ (with config.flake.modules.nixos; [
-        uefi
-        zram
+    imports = [
+      inputs.disko.nixosModules.default
+      ./_disko.nix
 
-        callum
+      inputs.quadlet-nix.nixosModules.quadlet
+    ]
+    ++ (with config.flake.nixosModules; [
+      salt-configuration
+    ])
+    ++ (with config.flake.modules.nixos; [
+      uefi
+      zram
 
-        ssh
-        tailscale
-      ]);
+      callum
+
+      ssh
+      tailscale
+    ]);
   };
 }

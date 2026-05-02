@@ -1,34 +1,38 @@
-{ config, ... }:
+{ config, inputs, ... }:
 {
   flake.modules.nixos."hosts/nixos/liz" = {
-    imports =
-      (with config.flake.nixosModules; [
-        liz-disko
-        liz-configuration
-        liz-networking
-      ])
-      ++ (with config.flake.modules.nixos; [
-        uefi
-        zram
-        impermanence-zfs
-        persistence
-        sops
+    imports = [
+      inputs.disko.nixosModules.default
+      ./_disko.nix
 
-        callum
-        colin
+      inputs.quadlet-nix.nixosModules.quadlet
+    ]
+    ++ (with config.flake.nixosModules; [
+      liz-configuration
+      liz-networking
+    ])
+    ++ (with config.flake.modules.nixos; [
+      uefi
+      zram
+      impermanence-zfs
+      persistence
+      sops
 
-        ssh
-        tailscale
-        gateway
-        monitoring
-        samba
-        syncthing
-        qbittorrent
+      callum
+      colin
 
-        quadlet-productivity
-        quadlet-media
-        quadlet-automation
-        quadlet-development
-      ]);
+      ssh
+      tailscale
+      gateway
+      monitoring
+      samba
+      syncthing
+      qbittorrent
+
+      quadlet-productivity
+      quadlet-media
+      quadlet-automation
+      quadlet-development
+    ]);
   };
 }

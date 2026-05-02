@@ -27,8 +27,6 @@ in
         { networking.hostName = hostname; }
         config.flake.modules.nixos.base
         module
-        inputs.disko.nixosModules.default
-        inputs.quadlet-nix.nixosModules.quadlet
       ];
     }
   );
