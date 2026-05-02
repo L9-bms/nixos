@@ -59,25 +59,25 @@
     };
 
   flake.modules.nixos.gateway =
-    { config, ... }:
+    { config, lib, ... }:
     {
       services.grafana.settings.server.domain = "grafana.${config.modules.gateway.tld}";
 
-      modules.gateway.localServices = [
-        {
+      modules.gateway.localServices = lib.mkMerge [
+        (lib.optional config.services.grafana.enable {
           name = "Grafana";
           domainName = "grafana";
           iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/grafana.png";
           addr = "${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
           category = "Administration";
-        }
-        {
+        })
+        (lib.optional config.services.prometheus.enable {
           name = "Prometheus";
           domainName = "prometheus";
           iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/prometheus.png";
           addr = "${toString config.services.prometheus.listenAddress}:${toString config.services.prometheus.port}";
           category = "Administration";
-        }
+        })
       ];
     };
 }

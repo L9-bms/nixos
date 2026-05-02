@@ -52,22 +52,24 @@ in
       };
     };
 
-  flake.modules.nixos.gateway = {
-    modules.gateway.localServices = [
-      {
-        name = "Jenkins";
-        domainName = "jenkins";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jenkins.png";
-        addr = "172.23.0.2:8080";
-        category = "Development";
-      }
-      {
-        name = "Forgejo";
-        domainName = "git";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/forgejo.png";
-        addr = "172.23.0.3:3000";
-        category = "Development";
-      }
-    ];
-  };
+  flake.modules.nixos.gateway =
+    { config, lib, ... }:
+    {
+      modules.gateway.localServices = lib.mkMerge [
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "jenkins" ] config) {
+          name = "Jenkins";
+          domainName = "jenkins";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jenkins.png";
+          addr = "172.23.0.2:8080";
+          category = "Development";
+        })
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "forgejo" ] config) {
+          name = "Forgejo";
+          domainName = "git";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/forgejo.png";
+          addr = "172.23.0.3:3000";
+          category = "Development";
+        })
+      ];
+    };
 }

@@ -95,36 +95,42 @@
       };
     };
 
-  flake.modules.nixos.gateway = {
-    modules.gateway.localServices = [
-      {
-        name = "OpenWebUI";
-        domainName = "chat";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui.png";
-        addr = "172.22.0.2:8080";
-        category = "Productivity";
-      }
-      {
-        name = "Copilot API";
-        domainName = "copilot";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/github-copilot.png";
-        addr = "172.22.0.4:4141";
-        category = "Productivity";
-      }
-      {
-        name = "SilverBullet";
-        domainName = "notes";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/silverbullet.png";
-        addr = "127.0.0.1:3000";
-        category = "Productivity";
-      }
-      {
-        name = "SearXNG";
-        domainName = "search";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/searxng.png";
-        addr = "172.22.0.3:8080";
-        hidden = true;
-      }
-    ];
-  };
+  flake.modules.nixos.gateway =
+    { config, lib, ... }:
+    {
+      modules.gateway.localServices = lib.mkMerge [
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "ai-openwebui" ] config)
+          {
+            name = "OpenWebUI";
+            domainName = "chat";
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui.png";
+            addr = "172.22.0.2:8080";
+            category = "Productivity";
+          }
+        )
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "ai-copilot" ] config) {
+          name = "Copilot API";
+          domainName = "copilot";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/github-copilot.png";
+          addr = "172.22.0.4:4141";
+          category = "Productivity";
+        })
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "silverbullet" ] config)
+          {
+            name = "SilverBullet";
+            domainName = "notes";
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/silverbullet.png";
+            addr = "127.0.0.1:3000";
+            category = "Productivity";
+          }
+        )
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "ai-searxng" ] config) {
+          name = "SearXNG";
+          domainName = "search";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/searxng.png";
+          addr = "172.22.0.3:8080";
+          hidden = true;
+        })
+      ];
+    };
 }

@@ -42,22 +42,26 @@
       };
     };
 
-  flake.modules.nixos.gateway = {
-    modules.gateway.localServices = [
-      {
-        name = "Home Assistant";
-        domainName = "hass";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/home-assistant.png";
-        addr = "127.0.0.1:8123";
-        category = "Automation";
-      }
-      {
-        name = "evcc";
-        domainName = "evcc";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/evcc.png";
-        addr = "127.0.0.1:7070";
-        category = "Automation";
-      }
-    ];
-  };
+  flake.modules.nixos.gateway =
+    { config, lib, ... }:
+    {
+      modules.gateway.localServices = lib.mkMerge [
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "homeassistant" ] config)
+          {
+            name = "Home Assistant";
+            domainName = "hass";
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/home-assistant.png";
+            addr = "127.0.0.1:8123";
+            category = "Automation";
+          }
+        )
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "evcc" ] config) {
+          name = "evcc";
+          domainName = "evcc";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/evcc.png";
+          addr = "127.0.0.1:7070";
+          category = "Automation";
+        })
+      ];
+    };
 }

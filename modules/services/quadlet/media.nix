@@ -123,10 +123,6 @@ in
             image = "jellyfin/jellyfin";
             # healthcheck systemd unit exits non-zero while status is "starting", preventing successful deploy
             healthInterval = "disable";
-            environments = {
-              # TODO: i will also need to derive this from the config later on
-              JELLYFIN_PublishedServerUrl = "https://watch.media.7sref";
-            };
             volumes = [
               "/mnt/media/media:/media:rw"
               "${config.utils.dataDir "media/jellyfin/cache"}:/cache:rw"
@@ -139,51 +135,75 @@ in
       };
     };
 
-  flake.modules.nixos.gateway = {
-    modules.gateway.localServices = [
-      {
-        name = "Sonarr";
-        domainName = "tv.media";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/sonarr.png";
-        addr = "172.21.0.3:8989";
-        category = "Media";
-      }
-      {
-        name = "Radarr";
-        domainName = "movies.media";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/radarr.png";
-        addr = "172.21.0.4:7878";
-        category = "Media";
-      }
-      {
-        name = "Prowlarr";
-        domainName = "indexers.media";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/prowlarr.png";
-        addr = "172.21.0.5:9696";
-        category = "Media";
-      }
-      {
-        name = "qBittorrent";
-        domainName = "torrent.media";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/qbittorrent.png";
-        addr = "172.21.0.2:11090";
-        category = "Media";
-      }
-      {
-        name = "Jellyfin";
-        domainName = "watch.media";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jellyfin.png";
-        addr = "172.21.0.7:8096";
-        category = "Media";
-      }
-      # {
-      #   name = "FlareSolverr";
-      #   domainName = "flaresolverr.media";
-      #   iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/flaresolverr.png";
-      #   addr = "172.21.0.6:8191";
-      #   category = "Media";
-      #   hidden = true;
-      # }
-    ];
-  };
+  flake.modules.nixos.gateway =
+    { config, lib, ... }:
+    let
+      jellyfinDomainName = "watch.media";
+    in
+    {
+      virtualisation.quadlet.containers.media-jellyfin.containerConfig.environments.JELLYFIN_PublishedServerUrl =
+        "${jellyfinDomainName}.${config.modules.gateway.tld}";
+
+      modules.gateway.localServices = lib.mkMerge [
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "media-sonarr" ] config)
+          {
+            name = "Sonarr";
+            domainName = "tv.media";
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/sonarr.png";
+            addr = "172.21.0.3:8989";
+            category = "Media";
+          }
+        )
+        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "media-radarr" ] config)
+          {
+            name = "Radarr";
+            domainName = "movies.media";
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/radarr.png";
+            addr = "172.21.0.4:7878";
+            category = "Media";
+          }
+        )
+        (lib.optional
+          (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "media-prowlarr" ] config)
+          {
+            name = "Prowlarr";
+            domainName = "indexers.media";
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/prowlarr.png";
+            addr = "172.21.0.5:9696";
+            category = "Media";
+          }
+        )
+        (lib.optional
+          (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "media-qbittorrent" ] config)
+          {
+            name = "qBittorrent";
+            domainName = "torrent.media";
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/qbittorrent.png";
+            addr = "172.21.0.2:11090";
+            category = "Media";
+          }
+        )
+        (lib.optional
+          (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "media-jellyfin" ] config)
+          {
+            name = "Jellyfin";
+            domainName = jellyfinDomainName;
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jellyfin.png";
+            addr = "172.21.0.7:8096";
+            category = "Media";
+          }
+        )
+        (lib.optional
+          (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "media-flaresolverr" ] config)
+          {
+            name = "FlareSolverr";
+            domainName = "flaresolverr.media";
+            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/flaresolverr.png";
+            addr = "172.21.0.6:8191";
+            category = "Media";
+            hidden = true;
+          }
+        )
+      ];
+    };
 }

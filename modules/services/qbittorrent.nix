@@ -23,15 +23,17 @@ in
       };
     };
 
-  flake.modules.nixos.gateway = {
-    modules.gateway.localServices = [
-      {
-        name = "VueTorrent";
-        domainName = "torrent";
-        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/vuetorrent.png";
-        addr = "127.0.0.1:${toString port}";
-        category = "Administration";
-      }
-    ];
-  };
+  flake.modules.nixos.gateway =
+    { config, lib, ... }:
+    {
+      modules.gateway.localServices = lib.mkMerge [
+        (lib.optional config.services.qbittorrent.enable {
+          name = "VueTorrent";
+          domainName = "torrent";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/vuetorrent.png";
+          addr = "127.0.0.1:${toString port}";
+          category = "Administration";
+        })
+      ];
+    };
 }
