@@ -39,6 +39,22 @@
             ];
           };
         };
+
+        mongo = {
+          serviceConfig = {
+            Restart = "always";
+            RestartSec = "10";
+          };
+          containerConfig = {
+            image = "mongo:latest";
+            environments = {
+              MONGO_INITDB_ROOT_USERNAME = "admin";
+              MONGO_INITDB_ROOT_PASSWORD = "secretpassword";
+            };
+            volumes = [ "${config.users.users.colin.home}/mongo_data:/data/db" ];
+            publishPorts = [ "27017:27017" ];
+          };
+        };
       };
     };
 
