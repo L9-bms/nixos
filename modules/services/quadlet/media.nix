@@ -130,6 +130,7 @@ in
             ];
             networks = [ networks.${networkName}.ref ];
             ip = "172.21.0.7";
+            environments.JELLYFIN_PublishedServerUrl = "jellyfin.${config.modules.gateway.tld}";
           };
         };
       };
@@ -141,8 +142,8 @@ in
       jellyfinDomainName = "watch.media";
     in
     {
-      virtualisation.quadlet.containers.media-jellyfin.containerConfig.environments.JELLYFIN_PublishedServerUrl =
-        "${jellyfinDomainName}.${config.modules.gateway.tld}";
+      # virtualisation.quadlet.containers.media-jellyfin.containerConfig.environments.JELLYFIN_PublishedServerUrl =
+      #   "${jellyfinDomainName}.${config.modules.gateway.tld}";
 
       modules.gateway.localServices = lib.mkMerge [
         (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "media-sonarr" ] config)
