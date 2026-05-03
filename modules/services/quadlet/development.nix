@@ -25,41 +25,37 @@ in
           };
         };
 
-        containers.jenkins = lib.mkIf config.modules.containers.jenkins {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "jenkins/jenkins:lts-jdk21";
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.23.0.2";
-            volumes = [
-              "${config.utils.dataDir "jenkins"}:/var/jenkins_home"
-            ];
-          };
-        };
-
-        containers.forgejo = lib.mkIf config.modules.containers.forgejo {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "codeberg.org/forgejo/forgejo:15";
-            environments = {
-              USER_UID = "1000";
-              USER_GID = "1000";
+        containers.jenkins = lib.mkIf config.modules.containers.jenkins (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "jenkins/jenkins:lts-jdk21";
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.23.0.2";
+              volumes = [
+                "${config.utils.dataDir "jenkins"}:/var/jenkins_home"
+              ];
             };
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.23.0.3";
-            publishPorts = [ "222:22" ];
-            volumes = [
-              "${config.utils.dataDir "gitea"}:/data"
-              "/etc/localtime:/etc/localtime:ro"
-            ];
-          };
-        };
+          }
+        );
+
+        containers.forgejo = lib.mkIf config.modules.containers.forgejo (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "codeberg.org/forgejo/forgejo:15";
+              environments = {
+                USER_UID = "1000";
+                USER_GID = "1000";
+              };
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.23.0.3";
+              publishPorts = [ "222:22" ];
+              volumes = [
+                "${config.utils.dataDir "gitea"}:/data"
+                "/etc/localtime:/etc/localtime:ro"
+              ];
+            };
+          }
+        );
       };
     };
 

@@ -26,125 +26,94 @@ in
           };
         };
 
-        containers.media-sonarr = lib.mkIf config.modules.containers.media-sonarr {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "ghcr.io/hotio/sonarr:latest";
-            environments = {
-              PGID = "1000";
-              PUID = "1000";
-              TZ = "Sydney/Australia";
+        containers.media-sonarr = lib.mkIf config.modules.containers.media-sonarr (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "ghcr.io/hotio/sonarr:latest";
+              volumes = [
+                "/mnt/media:/data:rw"
+                "${config.utils.dataDir "media/sonarr"}:/config:rw"
+              ];
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.21.0.3";
             };
-            volumes = [
-              "/mnt/media:/data:rw"
-              "${config.utils.dataDir "media/sonarr"}:/config:rw"
-            ];
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.21.0.3";
-          };
-        };
+          }
+        );
 
-        containers.media-radarr = lib.mkIf config.modules.containers.media-radarr {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "ghcr.io/hotio/radarr:latest";
-            environments = {
-              PGID = "1000";
-              PUID = "1000";
-              TZ = "Sydney/Australia";
+        containers.media-radarr = lib.mkIf config.modules.containers.media-radarr (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "ghcr.io/hotio/radarr:latest";
+              volumes = [
+                "/mnt/media:/data:rw"
+                "${config.utils.dataDir "media/radarr"}:/config:rw"
+              ];
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.21.0.4";
             };
-            volumes = [
-              "/mnt/media:/data:rw"
-              "${config.utils.dataDir "media/radarr"}:/config:rw"
-            ];
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.21.0.4";
-          };
-        };
+          }
+        );
 
-        containers.media-prowlarr = lib.mkIf config.modules.containers.media-prowlarr {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "ghcr.io/hotio/prowlarr:latest";
-            environments = {
-              PGID = "1000";
-              PUID = "1000";
-              TZ = "Sydney/Australia";
+        containers.media-prowlarr = lib.mkIf config.modules.containers.media-prowlarr (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "ghcr.io/hotio/prowlarr:latest";
+              volumes = [ "${config.utils.dataDir "media/prowlarr"}:/config:rw" ];
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.21.0.5";
             };
-            volumes = [ "${config.utils.dataDir "media/prowlarr"}:/config:rw" ];
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.21.0.5";
-          };
-        };
+          }
+        );
 
-        containers.media-flaresolverr = lib.mkIf config.modules.containers.media-flaresolverr {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "ghcr.io/flaresolverr/flaresolverr:latest";
-            environments = {
-              CAPTCHA_SOLVER = "none";
-              LOG_HTML = "false";
-              LOG_LEVEL = "info";
-              TZ = "Australia/Sydney";
+        containers.media-flaresolverr = lib.mkIf config.modules.containers.media-flaresolverr (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "ghcr.io/flaresolverr/flaresolverr:latest";
+              environments = {
+                CAPTCHA_SOLVER = "none";
+                LOG_HTML = "false";
+                LOG_LEVEL = "info";
+              };
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.21.0.6";
             };
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.21.0.6";
-          };
-        };
+          }
+        );
 
-        containers.media-qbittorrent = lib.mkIf config.modules.containers.media-qbittorrent {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "ghcr.io/hotio/qbittorrent:latest";
-            environments = {
-              PGID = "1000";
-              PUID = "1000";
-              TZ = "Sydney/Australia";
-              WEBUI_PORTS = "11090/tcp";
+        containers.media-qbittorrent = lib.mkIf config.modules.containers.media-qbittorrent (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "ghcr.io/hotio/qbittorrent:latest";
+              environments = {
+                WEBUI_PORTS = "11090/tcp";
+              };
+              volumes = [
+                "/mnt/media/torrents:/data/torrents:rw"
+                "${config.utils.dataDir "media/qbittorrent"}:/config:rw"
+              ];
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.21.0.2";
             };
-            volumes = [
-              "/mnt/media/torrents:/data/torrents:rw"
-              "${config.utils.dataDir "media/qbittorrent"}:/config:rw"
-            ];
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.21.0.2";
-          };
-        };
+          }
+        );
 
-        containers.media-jellyfin = lib.mkIf config.modules.containers.media-jellyfin {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "jellyfin/jellyfin";
-            # healthcheck systemd unit exits non-zero while status is "starting", preventing successful deploy
-            healthInterval = "disable";
-            volumes = [
-              "/mnt/media/media:/media:rw"
-              "${config.utils.dataDir "media/jellyfin/cache"}:/cache:rw"
-              "${config.utils.dataDir "media/jellyfin/config"}:/config:rw"
-            ];
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.21.0.7";
-            environments.JELLYFIN_PublishedServerUrl = "${jellyfinDomainName}.${config.modules.gateway.tld}";
-          };
-        };
+        containers.media-jellyfin = lib.mkIf config.modules.containers.media-jellyfin (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "jellyfin/jellyfin";
+              # healthcheck systemd unit exits non-zero while status is "starting", preventing successful deploy
+              healthInterval = "disable";
+              volumes = [
+                "/mnt/media/media:/media:rw"
+                "${config.utils.dataDir "media/jellyfin/cache"}:/cache:rw"
+                "${config.utils.dataDir "media/jellyfin/config"}:/config:rw"
+              ];
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.21.0.7";
+              environments.JELLYFIN_PublishedServerUrl = "${jellyfinDomainName}.${config.modules.gateway.tld}";
+            };
+          }
+        );
       };
     };
 

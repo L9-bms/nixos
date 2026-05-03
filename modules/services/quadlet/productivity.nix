@@ -27,49 +27,45 @@ in
           };
         };
 
-        containers.ai-searxng = lib.mkIf config.modules.containers.ai-searxng {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "searxng/searxng:latest";
-            volumes = [ "${config.utils.dataDir "searxng"}:/etc/searxng:rw" ];
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.22.0.3";
-            dropCapabilities = [ "ALL" ];
-            addCapabilities = [
-              "CHOWN"
-              "SETGID"
-              "SETUID"
-              "DAC_OVERRIDE"
-            ];
-          };
-        };
-
-        containers.ai-openwebui = lib.mkIf config.modules.containers.ai-openwebui {
-          serviceConfig = {
-            Restart = "always";
-            RestartSec = "10";
-          };
-          containerConfig = {
-            image = "ghcr.io/open-webui/open-webui:main-slim";
-            environments = {
-              ENABLE_RAG_WEB_SEARCH = "True";
-              RAG_WEB_SEARCH_ENGINE = "searxng";
-              RAG_WEB_SEARCH_RESULT_COUNT = "3";
-              RAG_WEB_SEARCH_CONCURRENT_REQUESTS = "10";
-              SEARXNG_QUERY_URL = "http://172.22.0.3:8080/search?q=<query>";
-              WEBUI_AUTH = "False";
+        containers.ai-searxng = lib.mkIf config.modules.containers.ai-searxng (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "searxng/searxng:latest";
+              volumes = [ "${config.utils.dataDir "searxng"}:/etc/searxng:rw" ];
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.22.0.3";
+              dropCapabilities = [ "ALL" ];
+              addCapabilities = [
+                "CHOWN"
+                "SETGID"
+                "SETUID"
+                "DAC_OVERRIDE"
+              ];
             };
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.22.0.2";
-            publishPorts = [ "8088:8080" ]; # keep here for dad
-            volumes = [
-              "${config.utils.dataDir "open-webui"}:/app/backend/data"
-            ];
-          };
-        };
+          }
+        );
+
+        containers.ai-openwebui = lib.mkIf config.modules.containers.ai-openwebui (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "ghcr.io/open-webui/open-webui:main-slim";
+              environments = {
+                ENABLE_RAG_WEB_SEARCH = "True";
+                RAG_WEB_SEARCH_ENGINE = "searxng";
+                RAG_WEB_SEARCH_RESULT_COUNT = "3";
+                RAG_WEB_SEARCH_CONCURRENT_REQUESTS = "10";
+                SEARXNG_QUERY_URL = "http://172.22.0.3:8080/search?q=<query>";
+                WEBUI_AUTH = "False";
+              };
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.22.0.2";
+              publishPorts = [ "8088:8080" ]; # keep here for dad
+              volumes = [
+                "${config.utils.dataDir "open-webui"}:/app/backend/data"
+              ];
+            };
+          }
+        );
 
         containers.ai-copilot-api = lib.mkIf config.modules.containers.ai-copilot-api {
           containerConfig = {
@@ -96,20 +92,18 @@ in
         mode = "0440";
       };
 
-      virtualisation.quadlet.containers.silverbullet = lib.mkIf config.modules.containers.silverbullet {
-        serviceConfig = {
-          Restart = "always";
-          RestartSec = "10";
-        };
-        containerConfig = {
-          image = "ghcr.io/silverbulletmd/silverbullet:latest";
-          environmentFiles = [ config.sops.secrets."docker/silverbullet_env".path ];
-          publishPorts = [ "3000:3000" ];
-          volumes = [
-            "${config.utils.dataDir "silverbullet"}:/space"
-          ];
-        };
-      };
+      virtualisation.quadlet.containers.silverbullet = lib.mkIf config.modules.containers.silverbullet (
+        config.utils.mkContainer {
+          containerConfig = {
+            image = "ghcr.io/silverbulletmd/silverbullet:latest";
+            environmentFiles = [ config.sops.secrets."docker/silverbullet_env".path ];
+            publishPorts = [ "3000:3000" ];
+            volumes = [
+              "${config.utils.dataDir "silverbullet"}:/space"
+            ];
+          };
+        }
+      );
     };
 
   flake.modules.nixos.gateway =
