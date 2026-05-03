@@ -26,6 +26,7 @@ in
       modules = [
         { networking.hostName = hostname; }
         config.flake.modules.nixos.base
+        config.flake.modules.nixos.global
         module
       ];
     }

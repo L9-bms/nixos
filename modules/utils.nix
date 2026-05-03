@@ -12,6 +12,22 @@
         persistDir = lib.attrByPath [ "modules" "persistence" "persistDir" ] "" config;
 
         dataDir = name: "${persistDir}/data/${name}";
+
+        mkContainer =
+          args:
+          lib.recursiveUpdate {
+            serviceConfig = {
+              Restart = "always";
+              RestartSec = "10";
+            };
+            containerConfig = {
+              environments = {
+                PGID = "1000";
+                PUID = "1000";
+                TZ = config.time.timeZone;
+              };
+            };
+          } args;
       };
     };
 }

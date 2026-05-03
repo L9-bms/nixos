@@ -21,22 +21,21 @@
         configDir = config.utils.dataDir "syncthing";
         key = config.sops.secrets."syncthing/key.pem".path;
         cert = config.sops.secrets."syncthing/cert.pem".path;
+        settings = {
+          gui.insecureSkipHostcheck = true;
+        };
       };
     };
 
   flake.modules.nixos.gateway =
     { config, lib, ... }:
     {
-      services.syncthing.settings.gui.insecureSkipHostcheck = true;
-
-      modules.gateway.localServices = lib.mkMerge [
-        (lib.optional config.services.syncthing.enable {
-          name = "Syncthing";
-          domainName = "syncthing";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/syncthing.png";
-          addr = "127.0.0.1:8384";
-          category = "Administration";
-        })
-      ];
+      modules.gateway.services.syncthing = lib.mkIf config.services.syncthing.enable {
+        name = "Syncthing";
+        domainName = "syncthing";
+        addr = "127.0.0.1:8384";
+        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/syncthing.png";
+        category = "Administration";
+      };
     };
 }

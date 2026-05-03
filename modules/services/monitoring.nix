@@ -7,6 +7,7 @@
         settings.server = {
           http_addr = "127.0.0.1";
           http_port = 2342;
+          domain = "grafana.${config.modules.gateway.tld}";
         };
         dataDir = config.utils.dataDir "grafana";
       };
@@ -61,23 +62,20 @@
   flake.modules.nixos.gateway =
     { config, lib, ... }:
     {
-      services.grafana.settings.server.domain = "grafana.${config.modules.gateway.tld}";
+      modules.gateway.services.monitoring-grafana = lib.mkIf config.services.grafana.enable {
+        name = "Grafana";
+        domainName = "grafana";
+        addr = "${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
+        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/grafana.png";
+        category = "Administration";
+      };
 
-      modules.gateway.localServices = lib.mkMerge [
-        (lib.optional config.services.grafana.enable {
-          name = "Grafana";
-          domainName = "grafana";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/grafana.png";
-          addr = "${toString config.services.grafana.settings.server.http_addr}:${toString config.services.grafana.settings.server.http_port}";
-          category = "Administration";
-        })
-        (lib.optional config.services.prometheus.enable {
-          name = "Prometheus";
-          domainName = "prometheus";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/prometheus.png";
-          addr = "${toString config.services.prometheus.listenAddress}:${toString config.services.prometheus.port}";
-          category = "Administration";
-        })
-      ];
+      modules.gateway.services.monitoring-prometheus = lib.mkIf config.services.prometheus.enable {
+        name = "Prometheus";
+        domainName = "prometheus";
+        addr = "${toString config.services.prometheus.listenAddress}:${toString config.services.prometheus.port}";
+        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/prometheus.png";
+        category = "Administration";
+      };
     };
 }
