@@ -21,14 +21,15 @@
         configDir = config.utils.dataDir "syncthing";
         key = config.sops.secrets."syncthing/key.pem".path;
         cert = config.sops.secrets."syncthing/cert.pem".path;
+        settings = {
+          gui.insecureSkipHostcheck = true;
+        };
       };
     };
 
   flake.modules.nixos.gateway =
     { config, lib, ... }:
     {
-      services.syncthing.settings.gui.insecureSkipHostcheck = true;
-
       modules.gateway.services.syncthing = lib.mkIf config.services.syncthing.enable {
         name = "Syncthing";
         domainName = "syncthing";
