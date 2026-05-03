@@ -1,6 +1,9 @@
+let
+  networkName = "ai";
+in
 {
   flake.modules.nixos.quadlet-productivity =
-    { config, ... }:
+    { config, lib, ... }:
     let
       inherit (config.virtualisation.quadlet) networks builds;
       copilotApiSrc = fetchGit {
@@ -9,13 +12,22 @@
       };
     in
     {
+      modules.containers = {
+        ai-searxng = lib.mkDefault true;
+        ai-openwebui = lib.mkDefault true;
+        ai-copilot-api = lib.mkDefault true;
+        silverbullet = lib.mkDefault true;
+      };
+
       virtualisation.quadlet = {
-        networks.ai.networkConfig = {
-          subnets = [ "172.22.0.0/16" ];
-          disableDns = true;
+        networks.${networkName} = {
+          networkConfig = {
+            subnets = [ "172.22.0.0/16" ];
+            disableDns = true;
+          };
         };
 
-        containers.ai-searxng = {
+        containers.ai-searxng = lib.mkIf config.modules.containers.ai-searxng {
           serviceConfig = {
             Restart = "always";
             RestartSec = "10";
@@ -23,7 +35,7 @@
           containerConfig = {
             image = "searxng/searxng:latest";
             volumes = [ "${config.utils.dataDir "searxng"}:/etc/searxng:rw" ];
-            networks = [ networks.ai.ref ];
+            networks = [ networks.${networkName}.ref ];
             ip = "172.22.0.3";
             dropCapabilities = [ "ALL" ];
             addCapabilities = [
@@ -35,7 +47,7 @@
           };
         };
 
-        containers.ai-openwebui = {
+        containers.ai-openwebui = lib.mkIf config.modules.containers.ai-openwebui {
           serviceConfig = {
             Restart = "always";
             RestartSec = "10";
@@ -50,7 +62,7 @@
               SEARXNG_QUERY_URL = "http://172.22.0.3:8080/search?q=<query>";
               WEBUI_AUTH = "False";
             };
-            networks = [ networks.ai.ref ];
+            networks = [ networks.${networkName}.ref ];
             ip = "172.22.0.2";
             publishPorts = [ "8088:8080" ]; # keep here for dad
             volumes = [
@@ -59,17 +71,22 @@
           };
         };
 
-        containers.ai-copilot-api.containerConfig = {
-          image = builds.copilot-api.ref;
-          networks = [ networks.ai.ref ];
-          ip = "172.22.0.4";
-          publishPorts = [ "4141:4141" ];
-          volumes = [
-            "${config.utils.dataDir "copilot-api"}:/root/.local/share/copilot-api"
-          ];
+        containers.ai-copilot-api = lib.mkIf config.modules.containers.ai-copilot-api {
+          containerConfig = {
+            image = builds.copilot-api.ref;
+            networks = [ networks.${networkName}.ref ];
+            ip = "172.22.0.4";
+            publishPorts = [ "4141:4141" ];
+            volumes = [
+              "${config.utils.dataDir "copilot-api"}:/root/.local/share/copilot-api"
+            ];
+          };
         };
-        builds.copilot-api.buildConfig = {
-          workdir = "${copilotApiSrc}";
+
+        builds.copilot-api = lib.mkIf config.modules.containers.ai-copilot-api {
+          buildConfig = {
+            workdir = "${copilotApiSrc}";
+          };
         };
       };
 
@@ -79,7 +96,7 @@
         mode = "0440";
       };
 
-      virtualisation.quadlet.containers.silverbullet = {
+      virtualisation.quadlet.containers.silverbullet = lib.mkIf config.modules.containers.silverbullet {
         serviceConfig = {
           Restart = "always";
           RestartSec = "10";
@@ -98,39 +115,37 @@
   flake.modules.nixos.gateway =
     { config, lib, ... }:
     {
-      modules.gateway.localServices = lib.mkMerge [
-        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "ai-openwebui" ] config)
-          {
-            name = "OpenWebUI";
-            domainName = "chat";
-            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui.png";
-            addr = "172.22.0.2:8080";
-            category = "Productivity";
-          }
-        )
-        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "ai-copilot" ] config) {
+      modules.gateway.services = {
+        productivity-openwebui = lib.mkIf config.modules.containers.ai-openwebui {
+          name = "OpenWebUI";
+          domainName = "chat";
+          addr = "172.22.0.2:8080";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/open-webui.png";
+          category = "Productivity";
+        };
+
+        productivity-copilot-api = lib.mkIf config.modules.containers.ai-copilot-api {
           name = "Copilot API";
           domainName = "copilot";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/github-copilot.png";
           addr = "172.22.0.4:4141";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/github-copilot.png";
           category = "Productivity";
-        })
-        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "silverbullet" ] config)
-          {
-            name = "SilverBullet";
-            domainName = "notes";
-            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/silverbullet.png";
-            addr = "127.0.0.1:3000";
-            category = "Productivity";
-          }
-        )
-        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "ai-searxng" ] config) {
+        };
+
+        productivity-silverbullet = lib.mkIf config.modules.containers.silverbullet {
+          name = "SilverBullet";
+          domainName = "notes";
+          addr = "127.0.0.1:3000";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/silverbullet.png";
+          category = "Productivity";
+        };
+
+        productivity-searxng = lib.mkIf config.modules.containers.ai-searxng {
           name = "SearXNG";
           domainName = "search";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/searxng.png";
           addr = "172.22.0.3:8080";
           hidden = true;
-        })
-      ];
+        };
+      };
     };
 }

@@ -26,14 +26,12 @@ in
   flake.modules.nixos.gateway =
     { config, lib, ... }:
     {
-      modules.gateway.localServices = lib.mkMerge [
-        (lib.optional config.services.qbittorrent.enable {
-          name = "VueTorrent";
-          domainName = "torrent";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/vuetorrent.png";
-          addr = "127.0.0.1:${toString port}";
-          category = "Administration";
-        })
-      ];
+      modules.gateway.services.qbittorrent = lib.mkIf config.services.qbittorrent.enable {
+        name = "VueTorrent";
+        domainName = "torrent";
+        addr = "127.0.0.1:${toString port}";
+        iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/vuetorrent.png";
+        category = "Administration";
+      };
     };
 }

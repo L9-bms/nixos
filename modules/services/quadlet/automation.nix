@@ -1,9 +1,15 @@
 {
   flake.modules.nixos.quadlet-automation =
-    { config, ... }:
+    { config, lib, ... }:
     {
+      modules.containers = {
+        homeassistant = lib.mkDefault true;
+        evcc = lib.mkDefault true;
+        mongo = lib.mkDefault true;
+      };
+
       virtualisation.quadlet.containers = {
-        homeassistant = {
+        homeassistant = lib.mkIf config.modules.containers.homeassistant {
           serviceConfig = {
             Restart = "always";
             RestartSec = "10";
@@ -22,7 +28,7 @@
           };
         };
 
-        evcc = {
+        evcc = lib.mkIf config.modules.containers.evcc {
           serviceConfig = {
             Restart = "always";
             RestartSec = "10";
@@ -40,7 +46,7 @@
           };
         };
 
-        mongo = {
+        mongo = lib.mkIf config.modules.containers.mongo {
           serviceConfig = {
             Restart = "always";
             RestartSec = "10";
@@ -61,23 +67,22 @@
   flake.modules.nixos.gateway =
     { config, lib, ... }:
     {
-      modules.gateway.localServices = lib.mkMerge [
-        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "homeassistant" ] config)
-          {
-            name = "Home Assistant";
-            domainName = "hass";
-            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/home-assistant.png";
-            addr = "127.0.0.1:8123";
-            category = "Automation";
-          }
-        )
-        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "evcc" ] config) {
+      modules.gateway.services = {
+        automation-homeassistant = lib.mkIf config.modules.containers.homeassistant {
+          name = "Home Assistant";
+          domainName = "hass";
+          addr = "127.0.0.1:8123";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/home-assistant.png";
+          category = "Automation";
+        };
+
+        automation-evcc = lib.mkIf config.modules.containers.evcc {
           name = "evcc";
           domainName = "evcc";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/evcc.png";
           addr = "127.0.0.1:7070";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/evcc.png";
           category = "Automation";
-        })
-      ];
+        };
+      };
     };
 }

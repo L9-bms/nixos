@@ -3,18 +3,29 @@ let
 in
 {
   flake.modules.nixos.quadlet-development =
-    { config, ... }:
+    { config, lib, ... }:
     let
       inherit (config.virtualisation.quadlet) networks;
+      anyDevEnabled = lib.any (c: config.modules.containers.${c}) [
+        "jenkins"
+        "forgejo"
+      ];
     in
     {
+      modules.containers = {
+        jenkins = lib.mkDefault true;
+        forgejo = lib.mkDefault true;
+      };
+
       virtualisation.quadlet = {
-        networks.${networkName}.networkConfig = {
-          subnets = [ "172.23.0.0/16" ];
-          disableDns = true;
+        networks.${networkName} = lib.mkIf anyDevEnabled {
+          networkConfig = {
+            subnets = [ "172.23.0.0/16" ];
+            disableDns = true;
+          };
         };
 
-        containers.jenkins = {
+        containers.jenkins = lib.mkIf config.modules.containers.jenkins {
           serviceConfig = {
             Restart = "always";
             RestartSec = "10";
@@ -29,7 +40,7 @@ in
           };
         };
 
-        containers.forgejo = {
+        containers.forgejo = lib.mkIf config.modules.containers.forgejo {
           serviceConfig = {
             Restart = "always";
             RestartSec = "10";
@@ -55,21 +66,22 @@ in
   flake.modules.nixos.gateway =
     { config, lib, ... }:
     {
-      modules.gateway.localServices = lib.mkMerge [
-        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "jenkins" ] config) {
+      modules.gateway.services = {
+        development-jenkins = lib.mkIf config.modules.containers.jenkins {
           name = "Jenkins";
           domainName = "jenkins";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jenkins.png";
           addr = "172.23.0.2:8080";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jenkins.png";
           category = "Development";
-        })
-        (lib.optional (lib.hasAttrByPath [ "virtualisation" "quadlet" "containers" "forgejo" ] config) {
+        };
+
+        development-forgejo = lib.mkIf config.modules.containers.forgejo {
           name = "Forgejo";
           domainName = "git";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/forgejo.png";
           addr = "172.23.0.3:3000";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/forgejo.png";
           category = "Development";
-        })
-      ];
+        };
+      };
     };
 }

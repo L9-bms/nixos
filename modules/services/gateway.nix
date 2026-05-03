@@ -12,9 +12,10 @@
         tld = lib.mkOption {
           type = lib.types.str;
           default = "7sref";
+          description = "Top-level domain for services";
         };
-        localServices = lib.mkOption {
-          type = lib.types.listOf (
+        services = lib.mkOption {
+          type = lib.types.attrsOf (
             lib.types.submodule {
               options = {
                 name = lib.mkOption {
@@ -41,23 +42,21 @@
               };
             }
           );
-          default = [ ];
-          description = "Service metadata for reverse proxy and dashboard";
+          default = { };
+          description = "Registry of service metadata for reverse proxy and dashboard";
         };
       };
 
       config = {
         nixpkgs.overlays = [ inputs.prism-tower.overlays.default ];
 
-        modules.gateway.localServices = [
-          {
-            name = "Technitium DNS";
-            domainName = "technitium";
-            iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/technitium.png";
-            addr = "127.0.0.1:5380";
-            category = "Administration";
-          }
-        ];
+        modules.gateway.services.technitium-dns = lib.mkIf config.services.technitium-dns-server.enable {
+          name = "Technitium DNS";
+          domainName = "technitium";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/technitium.png";
+          addr = "127.0.0.1:5380";
+          category = "Administration";
+        };
 
         systemd.tmpfiles.rules = [
           "d ${caddyDataDir} 0750 caddy caddy -"
@@ -122,7 +121,7 @@
                     reverse_proxy ${service.addr}
                   '';
                 };
-              }) config.modules.gateway.localServices
+              }) (builtins.attrValues config.modules.gateway.services)
             ))
             // {
               "http://${fqdn "prism.tower"}, https://${fqdn "prism.tower"}" = {
@@ -139,7 +138,7 @@
                         url = "https://${fqdn service.domainName}";
                         iconUrl = service.iconUrl;
                         category = service.category;
-                      }) (builtins.filter (service: !service.hidden) config.modules.gateway.localServices);
+                      }) (builtins.filter (s: !s.hidden) (builtins.attrValues config.modules.gateway.services));
                       links = [
                         {
                           name = "Sentral";
