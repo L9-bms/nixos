@@ -3,27 +3,37 @@
   flake.modules.nixos.global =
     { ... }:
     {
-      options.modules.containers = {
-        media-sonarr = lib.mkEnableOption "Sonarr";
-        media-radarr = lib.mkEnableOption "Radarr";
-        media-prowlarr = lib.mkEnableOption "Prowlarr";
-        media-flaresolverr = lib.mkEnableOption "FlareSolverr";
-        media-qbittorrent = lib.mkEnableOption "qBittorrent";
-        media-jellyfin = lib.mkEnableOption "Jellyfin";
+      options = {
+        modules.gateway = {
+          tld = lib.mkOption {
+            type = lib.types.str;
+            default = "7sref";
+            description = "Top-level domain for services";
+          };
+        };
 
-        homeassistant = lib.mkEnableOption "Home Assistant";
-        evcc = lib.mkEnableOption "evcc";
-        mongo = lib.mkEnableOption "MongoDB";
+        modules.containers = {
+          media-sonarr = lib.mkEnableOption "Sonarr";
+          media-radarr = lib.mkEnableOption "Radarr";
+          media-prowlarr = lib.mkEnableOption "Prowlarr";
+          media-flaresolverr = lib.mkEnableOption "FlareSolverr";
+          media-qbittorrent = lib.mkEnableOption "qBittorrent";
+          media-jellyfin = lib.mkEnableOption "Jellyfin";
 
-        jenkins = lib.mkEnableOption "Jenkins";
-        forgejo = lib.mkEnableOption "Forgejo";
+          homeassistant = lib.mkEnableOption "Home Assistant";
+          evcc = lib.mkEnableOption "evcc";
+          mongo = lib.mkEnableOption "MongoDB";
 
-        ai-searxng = lib.mkEnableOption "SearXNG";
-        ai-openwebui = lib.mkEnableOption "Open WebUI";
-        ai-copilot-api = lib.mkEnableOption "Copilot API";
-        silverbullet = lib.mkEnableOption "SilverBullet";
+          jenkins = lib.mkEnableOption "Jenkins";
+          forgejo = lib.mkEnableOption "Forgejo";
 
-        minecraft-server = lib.mkEnableOption "Minecraft Server";
+          ai-searxng = lib.mkEnableOption "SearXNG";
+          ai-openwebui = lib.mkEnableOption "Open WebUI";
+          ai-copilot-api = lib.mkEnableOption "Copilot API";
+          silverbullet = lib.mkEnableOption "SilverBullet";
+
+          minecraft-server = lib.mkEnableOption "Minecraft Server";
+        };
       };
     };
 }

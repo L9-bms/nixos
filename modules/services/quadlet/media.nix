@@ -7,7 +7,6 @@ in
     { config, lib, ... }:
     let
       inherit (config.virtualisation.quadlet) networks;
-      tld = lib.attrByPath [ "modules" "site" "tld" ] "7sref" config;
     in
     {
       modules.containers = {
@@ -143,7 +142,7 @@ in
             ];
             networks = [ networks.${networkName}.ref ];
             ip = "172.21.0.7";
-            environments.JELLYFIN_PublishedServerUrl = "${jellyfinDomainName}.${tld}";
+            environments.JELLYFIN_PublishedServerUrl = "${jellyfinDomainName}.${config.modules.gateway.tld}";
           };
         };
       };

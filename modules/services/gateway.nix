@@ -9,11 +9,6 @@
     in
     {
       options.modules.gateway = {
-        tld = lib.mkOption {
-          type = lib.types.str;
-          default = "7sref";
-          description = "Top-level domain for services";
-        };
         services = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule {
