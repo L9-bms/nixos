@@ -12,6 +12,14 @@ in
       };
     in
     {
+      systemd.tmpfiles.rules = [
+        "d ${config.utils.dataDir "searxng"} 0755 root root -"
+        "d ${config.utils.dataDir "open-webui"} 0755 root root -"
+        "d ${config.utils.dataDir "copilot-api"} 0755 root root -"
+        "d ${config.utils.dataDir "langflow"} 0755 root root -"
+        "d ${config.utils.dataDir "silverbullet"} 0755 root root -"
+      ];
+
       modules.containers = {
         ai-searxng = lib.mkDefault true;
         ai-openwebui = lib.mkDefault true;

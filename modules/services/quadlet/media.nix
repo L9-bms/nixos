@@ -9,6 +9,15 @@ in
       inherit (config.virtualisation.quadlet) networks;
     in
     {
+      systemd.tmpfiles.rules = [
+        "d ${config.utils.dataDir "media/sonarr"} 0755 root root -"
+        "d ${config.utils.dataDir "media/radarr"} 0755 root root -"
+        "d ${config.utils.dataDir "media/prowlarr"} 0755 root root -"
+        "d ${config.utils.dataDir "media/qbittorrent"} 0755 root root -"
+        "d ${config.utils.dataDir "media/jellyfin/cache"} 0755 root root -"
+        "d ${config.utils.dataDir "media/jellyfin/config"} 0755 root root -"
+      ];
+
       modules.containers = {
         media-sonarr = lib.mkDefault true;
         media-radarr = lib.mkDefault true;

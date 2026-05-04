@@ -12,6 +12,11 @@ in
       ];
     in
     {
+      systemd.tmpfiles.rules = [
+        "d ${config.utils.dataDir "jenkins"} 0755 root root -"
+        "d ${config.utils.dataDir "gitea"} 0755 root root -"
+      ];
+
       modules.containers = {
         jenkins = lib.mkDefault true;
         forgejo = lib.mkDefault true;

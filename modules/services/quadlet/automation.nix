@@ -2,6 +2,12 @@
   flake.modules.nixos.quadlet-automation =
     { config, lib, ... }:
     {
+      systemd.tmpfiles.rules = [
+        "d ${config.utils.dataDir "home-assistant"} 0755 root root -"
+        "d ${config.users.users.colin.home}/evcc 0755 colin users -"
+        "d ${config.users.users.colin.home}/mongo_data 0755 colin users -"
+      ];
+
       modules.containers = {
         homeassistant = lib.mkDefault true;
         evcc = lib.mkDefault true;
