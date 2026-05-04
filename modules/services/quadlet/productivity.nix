@@ -16,6 +16,7 @@ in
         ai-searxng = lib.mkDefault true;
         ai-openwebui = lib.mkDefault true;
         ai-copilot-api = lib.mkDefault true;
+        ai-langflow = lib.mkDefault true;
         silverbullet = lib.mkDefault true;
       };
 
@@ -79,6 +80,19 @@ in
           };
         };
 
+        containers.ai-langflow = lib.mkIf config.modules.containers.ai-langflow (
+          config.utils.mkContainer {
+            containerConfig = {
+              image = "langflowai/langflow:latest";
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.22.0.5";
+              volumes = [
+                "${config.utils.dataDir "langflow"}:/app/langflow"
+              ];
+            };
+          }
+        );
+
         builds.copilot-api = lib.mkIf config.modules.containers.ai-copilot-api {
           buildConfig = {
             workdir = "${copilotApiSrc}";
@@ -140,6 +154,14 @@ in
           domainName = "search";
           addr = "172.22.0.3:8080";
           hidden = true;
+        };
+
+        productivity-langflow = lib.mkIf config.modules.containers.ai-langflow {
+          name = "Langflow";
+          domainName = "langflow";
+          addr = "172.22.0.5:7860";
+          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/langflow.png";
+          category = "Productivity";
         };
       };
     };
