@@ -2,15 +2,14 @@
 {
   flake.modules.nixos."hosts/nixos/liz" = {
     imports = [
-      inputs.disko.nixosModules.default
+      # convention: write all host-specific configuration as regular
+      # nixos modules instead of flake-parts modules.
       ./_disko.nix
+      ./_configuration.nix
+      ./_networking.nix
 
-      inputs.quadlet-nix.nixosModules.quadlet
+      inputs.disko.nixosModules.default
     ]
-    ++ (with config.flake.nixosModules; [
-      liz-configuration
-      liz-networking
-    ])
     ++ (with config.flake.modules.nixos; [
       uefi
       zram

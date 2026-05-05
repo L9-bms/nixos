@@ -2,14 +2,11 @@
 {
   flake.modules.nixos."hosts/nixos/salt" = {
     imports = [
-      inputs.disko.nixosModules.default
       ./_disko.nix
+      ./_configuration.nix
 
-      inputs.quadlet-nix.nixosModules.quadlet
+      inputs.disko.nixosModules.default
     ]
-    ++ (with config.flake.nixosModules; [
-      salt-configuration
-    ])
     ++ (with config.flake.modules.nixos; [
       uefi
       zram

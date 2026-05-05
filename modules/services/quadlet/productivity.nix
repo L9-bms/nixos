@@ -1,9 +1,10 @@
 let
   networkName = "ai";
 in
+{ inputs, lib, ... }:
 {
   flake.modules.nixos.quadlet-productivity =
-    { config, lib, ... }:
+    { config, ... }:
     let
       inherit (config.virtualisation.quadlet) networks builds;
       copilotApiSrc = fetchGit {
@@ -12,6 +13,8 @@ in
       };
     in
     {
+      imports = [ inputs.quadlet-nix.nixosModules.quadlet ];
+
       systemd.tmpfiles.rules = [
         "d ${config.utils.dataDir "searxng"} 0755 root root -"
         "d ${config.utils.dataDir "open-webui"} 0755 root root -"

@@ -1,7 +1,10 @@
+{ inputs, lib, ... }:
 {
   flake.modules.nixos.quadlet-automation =
-    { config, lib, ... }:
+    { config, ... }:
     {
+      imports = [ inputs.quadlet-nix.nixosModules.quadlet ];
+
       systemd.tmpfiles.rules = [
         "d ${config.utils.dataDir "home-assistant"} 0755 root root -"
         "d ${config.users.users.colin.home}/evcc 0755 colin users -"

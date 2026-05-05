@@ -1,7 +1,10 @@
+{ inputs, lib, ... }:
 {
   flake.modules.nixos.mc-server =
-    { config, lib, ... }:
+    { config, ... }:
     {
+      imports = [ inputs.quadlet-nix.nixosModules.quadlet ];
+
       modules.containers = {
         minecraft-server = lib.mkDefault true;
       };

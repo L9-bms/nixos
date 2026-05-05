@@ -2,13 +2,16 @@ let
   networkName = "media";
   jellyfinDomainName = "watch.media";
 in
+{ inputs, lib, ... }:
 {
   flake.modules.nixos.quadlet-media =
-    { config, lib, ... }:
+    { config, ... }:
     let
       inherit (config.virtualisation.quadlet) networks;
     in
     {
+      imports = [ inputs.quadlet-nix.nixosModules.quadlet ];
+
       systemd.tmpfiles.rules = [
         "d ${config.utils.dataDir "media/sonarr"} 0755 root root -"
         "d ${config.utils.dataDir "media/radarr"} 0755 root root -"

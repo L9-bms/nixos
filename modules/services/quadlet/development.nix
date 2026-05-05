@@ -1,17 +1,16 @@
 let
   networkName = "development";
 in
+{ inputs, lib, ... }:
 {
   flake.modules.nixos.quadlet-development =
-    { config, lib, ... }:
+    { config, ... }:
     let
       inherit (config.virtualisation.quadlet) networks;
-      anyDevEnabled = lib.any (c: config.modules.containers.${c}) [
-        "jenkins"
-        "forgejo"
-      ];
     in
     {
+      imports = [ inputs.quadlet-nix.nixosModules.quadlet ];
+
       systemd.tmpfiles.rules = [
         "d ${config.utils.dataDir "jenkins"} 0755 root root -"
         "d ${config.utils.dataDir "gitea"} 0755 root root -"
@@ -23,7 +22,7 @@ in
       };
 
       virtualisation.quadlet = {
-        networks.${networkName} = lib.mkIf anyDevEnabled {
+        networks.${networkName} = {
           networkConfig = {
             subnets = [ "172.23.0.0/16" ];
             disableDns = true;

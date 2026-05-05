@@ -2,12 +2,11 @@
 {
   flake.modules.nixos."hosts/nixos/staging" = {
     imports = [
-      inputs.disko.nixosModules.default
       ./_disko.nix
+      ./_configuration.nix
+
+      inputs.disko.nixosModules.default
     ]
-    ++ (with config.flake.nixosModules; [
-      staging-configuration
-    ])
     ++ (with config.flake.modules.nixos; [
       uefi
       impermanence-zfs
