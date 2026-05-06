@@ -19,18 +19,22 @@ let
     ) (lib.filterAttrs (name: _: lib.hasPrefix prefix name) modules);
 in
 {
-  flake.nixosConfigurations = mkHosts "hosts/nixos/" config.flake.modules.nixos (
-    hostname: module:
-    inputs.nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      modules = [
-        { networking.hostName = hostname; }
-        config.flake.modules.nixos.base
-        config.flake.modules.nixos.global
-        module
-      ];
-    }
-  );
+  flake.nixosConfigurations = lib.mkMerge [
+    (mkHosts "hosts/nixos/" config.flake.modules.nixos (
+      hostname: module:
+      inputs.nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+        modules = [
+          { networking.hostName = hostname; }
+          config.flake.modules.nixos.base
+          config.flake.modules.nixos.global
+          module
+        ];
+      }
+    ))
+
+    (config.flake.modules.iso or { })
+  ];
 
   flake.deploy.nodes = lib.mapAttrs (hostname: hostConfiguration: {
     inherit hostname;
