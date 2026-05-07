@@ -197,6 +197,27 @@
         "type": "github"
       }
     },
+    "picolimbo": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1777998870,
+        "narHash": "sha256-s9qiluhSclzZm/bwfZrkxtBKYPs09+OcjGCAJAK1zNc=",
+        "owner": "wongcallum",
+        "repo": "PicoLimbo",
+        "rev": "1edaae745e01d0391a98f87a2649ae8cd6594bee",
+        "type": "github"
+      },
+      "original": {
+        "owner": "wongcallum",
+        "ref": "nix",
+        "repo": "PicoLimbo",
+        "type": "github"
+      }
+    },
     "prism-tower": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -241,6 +262,7 @@
         "impermanence": "impermanence",
         "import-tree": "import-tree",
         "nixpkgs": "nixpkgs",
+        "picolimbo": "picolimbo",
         "prism-tower": "prism-tower",
         "quadlet-nix": "quadlet-nix",
         "secrets": "secrets",
