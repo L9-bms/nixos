@@ -22,7 +22,7 @@ in
   flake.nixosConfigurations = lib.mkMerge [
     (mkHosts "hosts/nixos/" config.flake.modules.nixos (
       hostname: module:
-      inputs.nixpkgs.lib.nixosSystem {
+      (config.flake.hostNixpkgs.${hostname} or inputs.nixpkgs).lib.nixosSystem {
         system = "x86_64-linux";
         modules = [
           { networking.hostName = hostname; }
