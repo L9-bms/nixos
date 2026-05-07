@@ -1,6 +1,6 @@
 { lib, ... }:
 {
-  config.flake.factory.user = username: isAdmin: hasSopsPassword: {
+  config.flake.factory.user = username: isAdmin: useSopsPassword: {
     nixos."${username}" = {
       users.users."${username}" = {
         isNormalUser = true;
@@ -12,8 +12,8 @@
     };
 
     nixos.sops =
-      { config, ... }:
-      lib.mkIf hasSopsPassword {
+      { config, lib, ... }:
+      lib.mkIf ((config ? sops) && useSopsPassword) {
         sops.secrets."passwords/${username}" = {
           owner = "root";
           group = "root";
