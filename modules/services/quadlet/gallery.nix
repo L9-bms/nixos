@@ -28,6 +28,7 @@ in
         owner = "root";
         group = "root";
         mode = "0440";
+        restartUnits = [ "gallery-app.service" ];
       };
 
       virtualisation.quadlet = {

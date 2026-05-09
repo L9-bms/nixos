@@ -115,6 +115,7 @@ in
         owner = "root";
         group = "root";
         mode = "0440";
+        restartUnits = [ "silverbullet.service" ];
       };
 
       virtualisation.quadlet.containers.silverbullet = lib.mkIf config.modules.containers.silverbullet (
