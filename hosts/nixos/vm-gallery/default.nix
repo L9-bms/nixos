@@ -1,16 +1,19 @@
 { config, microvmLib, ... }:
 {
-  flake.modules.nixos."hosts/nixos/gallery" = {
+  flake.modules.nixos."hosts/nixos/vm-gallery" = {
     imports = [
       (microvmLib.mkGuestModule {
         n = 1;
-        hostname = "gallery";
+        hostname = "vm-gallery";
       })
     ]
     ++ (with config.flake.modules.nixos; [
       persistence
       sops
+
       ssh
+      tailscale
+
       quadlet-gallery
     ]);
 

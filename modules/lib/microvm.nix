@@ -26,7 +26,7 @@
           interfaces = [
             {
               type = "tap";
-              id = "vm-${hostname}";
+              id = hostname;
               inherit (addr) mac;
             }
           ];
@@ -39,7 +39,7 @@
             }
             {
               tag = "persist";
-              source = "/persist/data/microvm-${hostname}";
+              source = "/persist/microvms/${hostname}";
               mountPoint = "/persist";
               proto = "virtiofs";
             }
@@ -71,11 +71,11 @@
       { n, hostname }:
       let
         addr = addressing n;
-        vmDir = "/persist/data/microvm-${hostname}";
+        vmDir = "/persist/microvms/${hostname}";
       in
       {
-        systemd.network.networks."10-vm-${hostname}" = {
-          matchConfig.Name = "vm-${hostname}";
+        systemd.network.networks."10-${hostname}" = {
+          matchConfig.Name = hostname;
           address = [ "${addr.hostAddr}/32" ];
           networkConfig.ConfigureWithoutCarrier = true;
           routes = [
@@ -88,7 +88,7 @@
 
         networking.nat = {
           enable = true;
-          internalInterfaces = [ "vm-${hostname}" ];
+          internalInterfaces = [ hostname ];
         };
 
         systemd.tmpfiles.rules = [

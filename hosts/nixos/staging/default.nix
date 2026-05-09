@@ -14,7 +14,7 @@
       inputs.microvm.nixosModules.host
       (microvmLib.mkHostNetworking {
         n = 1;
-        hostname = "gallery";
+        hostname = "vm-gallery";
       })
     ]
     ++ (with config.flake.modules.nixos; [
@@ -31,7 +31,7 @@
       gateway
     ]);
 
-    microvm.vms.gallery = {
+    microvm.vms.vm-gallery = {
       flake = inputs.self;
       restartIfChanged = true;
     };
