@@ -1,0 +1,100 @@
+{ inputs, lib, ... }:
+{
+  _module.args.microvmLib = rec {
+    addressing = n: {
+      hostAddr = "10.0.0.1";
+      guestAddr = "10.0.0.${toString (n + 1)}";
+      mac = "02:00:00:00:00:${lib.fixedWidthString 2 "0" (lib.toLower (lib.toHexString n))}";
+    };
+
+    mkGuestModule =
+      { n, hostname }:
+      let
+        addr = addressing n;
+      in
+      {
+        imports = [ inputs.microvm.nixosModules.microvm ];
+
+        networking.useNetworkd = true;
+
+        nix.optimise.automatic = lib.mkForce false;
+
+        microvm = {
+          hypervisor = lib.mkDefault "qemu";
+          vcpu = lib.mkDefault 4;
+          mem = lib.mkDefault 4096;
+          interfaces = [
+            {
+              type = "tap";
+              id = "vm-${hostname}";
+              inherit (addr) mac;
+            }
+          ];
+          shares = [
+            {
+              tag = "store";
+              source = "/nix/store";
+              mountPoint = "/nix/.ro-store";
+              proto = "virtiofs";
+            }
+            {
+              tag = "persist";
+              source = "/persist/data/microvm-${hostname}";
+              mountPoint = "/persist";
+              proto = "virtiofs";
+            }
+          ];
+        };
+
+        systemd.network = {
+          enable = true;
+          networks."10-eth" = {
+            matchConfig.MACAddress = addr.mac;
+            address = [ "${addr.guestAddr}/32" ];
+            routes = [
+              {
+                Gateway = addr.hostAddr;
+                GatewayOnLink = true;
+              }
+            ];
+            networkConfig.DNS = [ "1.1.1.1" ];
+          };
+        };
+
+        services.openssh.settings = {
+          PermitRootLogin = lib.mkForce "yes";
+          PasswordAuthentication = lib.mkForce true;
+        };
+      };
+
+    mkHostNetworking =
+      { n, hostname }:
+      let
+        addr = addressing n;
+        vmDir = "/persist/data/microvm-${hostname}";
+      in
+      {
+        systemd.network.networks."10-vm-${hostname}" = {
+          matchConfig.Name = "vm-${hostname}";
+          address = [ "${addr.hostAddr}/32" ];
+          networkConfig.ConfigureWithoutCarrier = true;
+          routes = [
+            {
+              Destination = "${addr.guestAddr}/32";
+              Scope = "link";
+            }
+          ];
+        };
+
+        networking.nat = {
+          enable = true;
+          internalInterfaces = [ "vm-${hostname}" ];
+        };
+
+        systemd.tmpfiles.rules = [
+          "d ${vmDir} 0755 root root -"
+          "d ${vmDir}/etc/ssh 0700 root root -"
+        ];
+      };
+  };
+}

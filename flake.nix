@@ -19,6 +19,7 @@
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
     prism-tower.url = "github:L9-bms/prism-tower";
     picolimbo.url = "github:wongcallum/PicoLimbo/nix";
+    microvm.url = "github:astro/microvm.nix";
 
     deploy-rs.inputs.nixpkgs.follows = "nixpkgs";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
@@ -26,6 +27,7 @@
     impermanence.inputs.nixpkgs.follows = "nixpkgs";
     prism-tower.inputs.nixpkgs.follows = "nixpkgs";
     picolimbo.inputs.nixpkgs.follows = "nixpkgs";
+    microvm.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs =
