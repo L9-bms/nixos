@@ -2,6 +2,8 @@
 {
   config.flake.factory.user = username: isAdmin: useSopsPassword: {
     nixos."${username}" = {
+      modules.users.${username}.enable = true;
+
       users.users."${username}" = {
         isNormalUser = true;
         home = "/home/${username}";
@@ -13,7 +15,7 @@
 
     nixos.sops =
       { config, lib, ... }:
-      lib.mkIf ((config ? sops) && useSopsPassword) {
+      lib.mkIf (useSopsPassword && (config.modules.users.${username}.enable or false)) {
         sops.secrets."passwords/${username}" = {
           owner = "root";
           group = "root";

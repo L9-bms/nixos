@@ -12,6 +12,15 @@
           };
         };
 
+        modules.users = lib.mkOption {
+          type = lib.types.attrsOf (
+            lib.types.submodule {
+              options.enable = lib.mkEnableOption "user account";
+            }
+          );
+          default = { };
+        };
+
         modules.containers = {
           media-sonarr = lib.mkEnableOption "Sonarr";
           media-radarr = lib.mkEnableOption "Radarr";
