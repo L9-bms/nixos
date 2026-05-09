@@ -34,6 +34,8 @@
           silverbullet = lib.mkEnableOption "SilverBullet";
 
           minecraft-server = lib.mkEnableOption "Minecraft Server";
+
+          gallery = lib.mkEnableOption "Gallery";
         };
       };
     };

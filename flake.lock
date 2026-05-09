@@ -272,10 +272,10 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1777634092,
-        "narHash": "sha256-0rDB46ZfMQJTdogIqz5WjIRbWPwr/w9oGTk3oQK7FLo=",
+        "lastModified": 1778317862,
+        "narHash": "sha256-1Udflk4jwVqUigPoTvENAYq4DNcBhsj7DU2IaOBCa+k=",
         "ref": "refs/heads/master",
-        "rev": "2d154a2805d705e1abbbc213adf9a8ab195af3fc",
+        "rev": "72be15b5276d2fe5319e4141b20c71a9aea62a7c",
         "shallow": true,
         "type": "git",
         "url": "ssh://git@github.com/L9-bms/nixos-secrets.git"
