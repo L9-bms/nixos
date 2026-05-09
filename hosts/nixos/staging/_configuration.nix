@@ -36,5 +36,7 @@
     '';
   };
 
+  networking.nat.externalInterface = "enp1s0";
+
   modules.gateway.tld = "staging.7sref";
 }

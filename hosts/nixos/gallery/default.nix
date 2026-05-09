@@ -1,0 +1,27 @@
+{ config, microvmLib, ... }:
+{
+  flake.modules.nixos."hosts/nixos/gallery" = {
+    imports = [
+      (microvmLib.mkGuestModule {
+        n = 1;
+        hostname = "gallery";
+      })
+    ]
+    ++ (with config.flake.modules.nixos; [
+      persistence
+      sops
+      ssh
+      quadlet-gallery
+    ]);
+
+    system.stateVersion = "25.11";
+
+    environment.persistence."/persist".directories = [
+      "/var/lib/containers"
+    ];
+
+    virtualisation.quadlet.containers.gallery-app.containerConfig.publishPorts = [ "3000:3000" ];
+
+    users.users.root.password = "password";
+  };
+}

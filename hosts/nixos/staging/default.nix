@@ -1,4 +1,9 @@
-{ config, inputs, ... }:
+{
+  config,
+  inputs,
+  microvmLib,
+  ...
+}:
 {
   flake.modules.nixos."hosts/nixos/staging" = {
     imports = [
@@ -6,6 +11,11 @@
       ./_configuration.nix
 
       inputs.disko.nixosModules.default
+      inputs.microvm.nixosModules.host
+      (microvmLib.mkHostNetworking {
+        n = 1;
+        hostname = "gallery";
+      })
     ]
     ++ (with config.flake.modules.nixos; [
       uefi
@@ -19,8 +29,11 @@
       tailscale
 
       gateway
-
-      quadlet-gallery
     ]);
+
+    microvm.vms.gallery = {
+      flake = inputs.self;
+      restartIfChanged = true;
+    };
   };
 }
