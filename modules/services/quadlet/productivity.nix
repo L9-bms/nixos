@@ -9,7 +9,7 @@ in
       inherit (config.virtualisation.quadlet) networks builds;
       copilotApiSrc = fetchGit {
         url = "https://github.com/caozhiyuan/copilot-api.git";
-        rev = "c4ab3b779066b9a176e8e73351f4b23da047e8e7";
+        rev = "fb30b781b51c8a0da2d22ecb045d66d2693463c8";
       };
     in
     {
