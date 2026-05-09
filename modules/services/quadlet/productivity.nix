@@ -121,7 +121,8 @@ in
         config.utils.mkContainer {
           containerConfig = {
             image = "ghcr.io/silverbulletmd/silverbullet:latest";
-            healthInterval = "disable";
+            notify = "healthy";
+            healthStartPeriod = "30s";
             environmentFiles = [ config.sops.secrets."docker/silverbullet_env".path ];
             publishPorts = [ "3000:3000" ];
             volumes = [

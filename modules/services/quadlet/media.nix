@@ -113,8 +113,8 @@ in
           config.utils.mkContainer {
             containerConfig = {
               image = "jellyfin/jellyfin";
-              # healthcheck systemd unit exits non-zero while status is "starting", preventing successful deploy
-              healthInterval = "disable";
+              notify = "healthy";
+              healthStartPeriod = "30s";
               volumes = [
                 "/mnt/media/media:/media:rw"
                 "${config.utils.dataDir "media/jellyfin/cache"}:/cache:rw"

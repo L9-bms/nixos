@@ -48,8 +48,8 @@
                 # volumes = [ "/data/raspberry:/data" ];
                 volumes = [ "/data/cottage-witch:/data" ];
                 stopTimeout = 60;
-                # healthcheck will always fail
-                healthInterval = "disable";
+                notify = "healthy";
+                healthStartPeriod = "60s";
               };
             }
           );
