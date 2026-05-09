@@ -39,16 +39,21 @@ in
           };
         };
 
-        builds.gallery-app = lib.mkIf config.modules.containers.gallery {
-          buildConfig = {
-            workdir = "${gallerySrc}";
-          };
-        };
-
         builds.gallery-migrate = lib.mkIf config.modules.containers.gallery {
           buildConfig = {
             workdir = "${gallerySrc}";
             target = "migrator";
+          };
+        };
+
+        builds.gallery-app = lib.mkIf config.modules.containers.gallery {
+          buildConfig = {
+            workdir = "${gallerySrc}";
+          };
+          unitConfig = {
+            # don't build in parallel..
+            Requires = [ "gallery-migrate-build.service" ];
+            After = [ "gallery-migrate-build.service" ];
           };
         };
 
@@ -87,8 +92,14 @@ in
             ip = "172.24.0.3";
           };
           unitConfig = {
-            Requires = [ "gallery-db.service" ];
-            After = [ "gallery-db.service" ];
+            Requires = [
+              "gallery-db.service"
+              "gallery-app-build.service"
+            ];
+            After = [
+              "gallery-db.service"
+              "gallery-app-build.service"
+            ];
           };
           serviceConfig = {
             Type = "oneshot";
@@ -121,20 +132,6 @@ in
             Restart = "always";
             RestartSec = "10";
           };
-        };
-      };
-    };
-
-  flake.modules.nixos.gateway =
-    { config, lib, ... }:
-    {
-      modules.gateway.services = {
-        gallery = lib.mkIf config.modules.containers.gallery {
-          name = "Gallery";
-          domainName = "gallery";
-          addr = "172.24.0.4:3000";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/photoprism.png";
-          category = "Personal";
         };
       };
     };
