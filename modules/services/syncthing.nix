@@ -21,6 +21,9 @@
         configDir = config.utils.dataDir "syncthing";
         key = config.sops.secrets."syncthing/key.pem".path;
         cert = config.sops.secrets."syncthing/cert.pem".path;
+        # STOP FUCKING WIPING MY CONFIG!
+        overrideDevices = false;
+        overrideFolders = false;
         settings = {
           gui.insecureSkipHostcheck = true;
         };
