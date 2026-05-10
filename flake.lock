@@ -249,13 +249,13 @@
       "locked": {
         "lastModified": 1778316972,
         "narHash": "sha256-rBtLvWpANts7XXyRTLMDHF4lnuBEClbHIpDpNNLxDL0=",
-        "owner": "L9-bms",
+        "owner": "wongcallum",
         "repo": "prism-tower",
         "rev": "0f6f5bd110a916c3293e161af30d074f6a2c0c86",
         "type": "github"
       },
       "original": {
-        "owner": "L9-bms",
+        "owner": "wongcallum",
         "repo": "prism-tower",
         "type": "github"
       }
@@ -294,18 +294,18 @@
     "secrets": {
       "flake": false,
       "locked": {
-        "lastModified": 1778333204,
-        "narHash": "sha256-Ob5BSXl5y4mL1e3cZNW6hkOVBSJ3SQgEnCnzo7/EQgQ=",
+        "lastModified": 1778407913,
+        "narHash": "sha256-PqpYq6cVcakudvI/V/YnPwGsnlKDTkbiW6uYXByUlo4=",
         "ref": "refs/heads/master",
-        "rev": "7116bdcdfe666b8b04afb58e506f45b5d4978803",
+        "rev": "bc8eb5a61d7f5e93640b63e16ddce572be809ca7",
         "shallow": true,
         "type": "git",
-        "url": "ssh://git@github.com/L9-bms/nixos-secrets.git"
+        "url": "ssh://git@github.com/wongcallum/nixos-secrets.git"
       },
       "original": {
         "shallow": true,
         "type": "git",
-        "url": "ssh://git@github.com/L9-bms/nixos-secrets.git"
+        "url": "ssh://git@github.com/wongcallum/nixos-secrets.git"
       }
     },
     "sops-nix": {

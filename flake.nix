@@ -8,7 +8,7 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
     secrets = {
-      url = "git+ssh://git@github.com/L9-bms/nixos-secrets.git?shallow=1";
+      url = "git+ssh://git@github.com/wongcallum/nixos-secrets.git?shallow=1";
       flake = false;
     };
 
@@ -17,7 +17,7 @@
     disko.url = "github:nix-community/disko";
     impermanence.url = "github:nix-community/impermanence";
     quadlet-nix.url = "github:SEIAROTg/quadlet-nix";
-    prism-tower.url = "github:L9-bms/prism-tower";
+    prism-tower.url = "github:wongcallum/prism-tower";
     picolimbo.url = "github:wongcallum/PicoLimbo/nix";
     microvm.url = "github:astro/microvm.nix";
 
