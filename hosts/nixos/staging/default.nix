@@ -1,7 +1,6 @@
 {
   config,
   inputs,
-  microvmLib,
   ...
 }:
 {
@@ -11,11 +10,6 @@
       ./_configuration.nix
 
       inputs.disko.nixosModules.default
-      inputs.microvm.nixosModules.host
-      (microvmLib.mkHostNetworking {
-        n = 1;
-        hostname = "vm-gallery";
-      })
     ]
     ++ (with config.flake.modules.nixos; [
       uefi
@@ -30,10 +24,5 @@
 
       gateway
     ]);
-
-    microvm.vms.vm-gallery = {
-      flake = inputs.self;
-      restartIfChanged = true;
-    };
   };
 }

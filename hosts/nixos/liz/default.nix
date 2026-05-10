@@ -1,4 +1,9 @@
-{ config, inputs, ... }:
+{
+  config,
+  inputs,
+  microvmLib,
+  ...
+}:
 {
   flake.modules.nixos."hosts/nixos/liz" = {
     imports = [
@@ -9,6 +14,11 @@
       ./_networking.nix
 
       inputs.disko.nixosModules.default
+      inputs.microvm.nixosModules.host
+      (microvmLib.mkHostNetworking {
+        n = 1;
+        hostname = "vm-gallery";
+      })
     ]
     ++ (with config.flake.modules.nixos; [
       uefi
@@ -33,5 +43,10 @@
       quadlet-automation
       quadlet-development
     ]);
+
+    microvm.vms.vm-gallery = {
+      flake = inputs.self;
+      restartIfChanged = true;
+    };
   };
 }
