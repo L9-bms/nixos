@@ -1,5 +1,8 @@
+{ lib, ... }:
 {
   flake.modules.nixos.ssh = {
+    modules.ssh.enable = lib.mkDefault true;
+
     services.openssh = {
       enable = true;
       settings.PasswordAuthentication = false;
@@ -8,11 +11,10 @@
   };
 
   flake.modules.nixos.persistence =
-    { lib, config, ... }:
+    { config, ... }:
     {
-      # by default, /etc/ssh/ssh_host_rsa_key and /etc/ssh/ssh_host_ed25519_key
       environment.persistence.${config.modules.persistence.persistDir}.files =
-        lib.mkIf config.services.openssh.enable
+        lib.mkIf config.modules.ssh.enable
           (
             lib.concatMap (key: [
               key.path

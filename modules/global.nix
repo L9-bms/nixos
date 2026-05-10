@@ -12,6 +12,10 @@
           };
         };
 
+        modules.ssh.enable = lib.mkEnableOption "OpenSSH";
+        modules.tailscale.enable = lib.mkEnableOption "Tailscale";
+        modules.samba.enable = lib.mkEnableOption "Samba";
+
         modules.users = lib.mkOption {
           type = lib.types.attrsOf (
             lib.types.submodule {
