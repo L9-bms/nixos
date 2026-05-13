@@ -34,4 +34,9 @@
     media = "/mnt/media";
     torrents = "/tank/torrents";
   };
+
+  modules.immich.externalLibraries = {
+    photo = "/tank/photo";
+    DCIM = "/tank/callum/syncthing/DCIM/Camera";
+  };
 }
