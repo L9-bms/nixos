@@ -23,6 +23,7 @@ in
         systemd.tmpfiles.rules = [
           "d ${config.utils.dataDir "immich/db"} 0755 root root -"
           "d ${config.utils.dataDir "immich/model-cache"} 0755 root root -"
+          "d ${config.utils.dataDir "immich/data"} 0755 root root -"
         ];
 
         modules.containers = {
@@ -47,6 +48,7 @@ in
                   POSTGRES_DB = "immich";
                   POSTGRES_INITDB_ARGS = "--data-checksums";
                 };
+                shmSize = "128m";
                 networks = [ networks.${networkName}.ref ];
                 ip = "172.25.0.2";
                 volumes = [
@@ -109,6 +111,7 @@ in
                     name: path: "${path}:/external/${name}:ro"
                   ) config.modules.immich.externalLibraries
                   ++ [
+                    "${config.utils.dataDir "immich/data"}:/data"
                     "/etc/localtime:/etc/localtime:ro"
                   ];
               };
