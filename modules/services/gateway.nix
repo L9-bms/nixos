@@ -76,7 +76,7 @@
 
         services.technitium-dns-server.enable = true;
         systemd.services.technitium-dns-server.serviceConfig = {
-          WorkingDirectory = lib.mkForce null;
+          WorkingDirectory = lib.mkForce "/var/lib/technitium-dns-server";
           BindPaths = lib.mkForce null;
           DynamicUser = lib.mkForce false;
           User = "root";
