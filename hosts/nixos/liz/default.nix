@@ -42,6 +42,7 @@
       quadlet-media
       quadlet-automation
       quadlet-development
+      quadlet-immich
     ]);
 
     microvm.vms.vm-gallery = {
