@@ -12,12 +12,10 @@ in
       imports = [ inputs.quadlet-nix.nixosModules.quadlet ];
 
       systemd.tmpfiles.rules = [
-        "d ${config.utils.dataDir "jenkins"} 0755 root root -"
         "d ${config.utils.dataDir "gitea"} 0755 root root -"
       ];
 
       modules.containers = {
-        jenkins = lib.mkDefault true;
         forgejo = lib.mkDefault true;
       };
 
@@ -28,19 +26,6 @@ in
             disableDns = true;
           };
         };
-
-        containers.jenkins = lib.mkIf config.modules.containers.jenkins (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "jenkins/jenkins:lts-jdk21";
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.23.0.2";
-              volumes = [
-                "${config.utils.dataDir "jenkins"}:/var/jenkins_home"
-              ];
-            };
-          }
-        );
 
         containers.forgejo = lib.mkIf config.modules.containers.forgejo (
           config.utils.mkContainer {
@@ -67,14 +52,6 @@ in
     { config, lib, ... }:
     {
       modules.gateway.services = {
-        development-jenkins = lib.mkIf config.modules.containers.jenkins {
-          name = "Jenkins";
-          domainName = "jenkins";
-          addr = "172.23.0.2:8080";
-          iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jenkins.png";
-          category = "Development";
-        };
-
         development-forgejo = lib.mkIf config.modules.containers.forgejo {
           name = "Forgejo";
           domainName = "git";

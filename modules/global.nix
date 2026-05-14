@@ -37,7 +37,6 @@
           evcc = lib.mkEnableOption "evcc";
           mongo = lib.mkEnableOption "MongoDB";
 
-          jenkins = lib.mkEnableOption "Jenkins";
           forgejo = lib.mkEnableOption "Forgejo";
 
           ai-searxng = lib.mkEnableOption "SearXNG";
