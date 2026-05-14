@@ -19,6 +19,10 @@
         n = 1;
         hostname = "vm-gallery";
       })
+      (microvmLib.mkHostNetworking {
+        n = 2;
+        hostname = "vm-jenkins";
+      })
     ]
     ++ (with config.flake.modules.nixos; [
       uefi
@@ -48,6 +52,20 @@
     microvm.vms.vm-gallery = {
       flake = inputs.self;
       restartIfChanged = true;
+    };
+
+    microvm.vms.vm-jenkins = {
+      flake = inputs.self;
+      restartIfChanged = true;
+    };
+
+    # TODO: find a way to move this somewhere else
+    modules.gateway.services.development-jenkins = {
+      name = "Jenkins";
+      domainName = "jenkins";
+      addr = "10.0.0.3:8080";
+      iconUrl = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons/png/jenkins.png";
+      category = "Development";
     };
   };
 }
