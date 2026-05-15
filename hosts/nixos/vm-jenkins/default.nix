@@ -1,37 +1,59 @@
 { config, microvmLib, ... }:
 {
-  flake.modules.nixos."hosts/nixos/vm-jenkins" = {
-    imports = [
-      (microvmLib.mkGuestModule {
-        n = 2;
-        hostname = "vm-jenkins";
-      })
-    ]
-    ++ (with config.flake.modules.nixos; [
-      persistence
-      sops
+  flake.modules.nixos."hosts/nixos/vm-jenkins" =
+    { pkgs, ... }:
+    {
+      imports = [
+        (microvmLib.mkGuestModule {
+          n = 2;
+          hostname = "vm-jenkins";
+        })
+      ]
+      ++ (with config.flake.modules.nixos; [
+        persistence
+        sops
 
-      ssh
-    ]);
+        ssh
+      ]);
 
-    system.stateVersion = "25.11";
+      microvm.volumes = [
+        {
+          mountPoint = "/var/lib/docker";
+          image = "/persist/microvms/vm-jenkins-docker.img";
+          size = 20 * 1024;
+          fsType = "ext4";
+        }
+      ];
 
-    environment.persistence."/persist".directories = [
-      "/var/lib/jenkins"
-      "/var/lib/docker"
-    ];
+      system.stateVersion = "25.11";
 
-    networking.firewall.allowedTCPPorts = [ 8080 ];
+      environment.persistence."/persist".directories = [
+        "/var/lib/jenkins"
+      ];
 
-    services.jenkins = {
-      enable = true;
-      listenAddress = "0.0.0.0";
+      networking.firewall.allowedTCPPorts = [ 8080 ];
+
+      services.jenkins = {
+        enable = true;
+        listenAddress = "0.0.0.0";
+        extraJavaOptions = [
+          "-Dorg.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS=true"
+          "-Djava.net.preferIPv4Stack=true"
+        ];
+        packages = with pkgs; [
+          git
+          bash
+          coreutils
+          unzip
+          gnutar
+          gzip
+          docker-client
+        ];
+      };
+
+      virtualisation.docker.enable = true;
+      users.users.jenkins.extraGroups = [ "docker" ];
+
+      users.users.root.password = "password";
     };
-
-    virtualisation.docker.enable = true;
-
-    users.users.jenkins.extraGroups = [ "docker" ];
-
-    users.users.root.password = "password";
-  };
 }
