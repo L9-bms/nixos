@@ -24,10 +24,18 @@ in
           "d ${config.utils.dataDir "immich/db"} 0755 root root -"
           "d ${config.utils.dataDir "immich/model-cache"} 0755 root root -"
           "d ${config.utils.dataDir "immich/data"} 0755 root root -"
+          "d ${config.utils.dataDir "immich/immich-stack/logs"} 0755 root root -"
         ];
 
         modules.containers = {
           immich = lib.mkDefault true;
+        };
+
+        sops.secrets."docker/immich-stack_env" = {
+          owner = "root";
+          group = "root";
+          mode = "0440";
+          restartUnits = [ "immich-stack.service" ];
         };
 
         virtualisation.quadlet = {
@@ -128,6 +136,30 @@ in
               };
             }
           );
+
+          containers.immich-stack = config.utils.mkContainer {
+            containerConfig = {
+              image = "ghcr.io/majorfi/immich-stack:latest";
+              environmentFiles = [ config.sops.secrets."docker/immich-stack_env".path ];
+              environments = {
+                API_URL = "http://172.25.0.5:2283/api";
+                RUN_MODE = "cron";
+                CRON_INTERVAL = "3600";
+                LOG_LEVEL = "info";
+                LOG_FORMAT = "text";
+                LOG_FILE = "/app/logs/immich-stack.log";
+              };
+              networks = [ networks.${networkName}.ref ];
+              ip = "172.25.0.6";
+              volumes = [
+                "${config.utils.dataDir "immich/immich-stack/logs"}:/app/logs"
+              ];
+            };
+            unitConfig = {
+              Requires = [ "immich-server.service" ];
+              After = [ "immich-server.service" ];
+            };
+          };
         };
       };
     };
