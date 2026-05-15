@@ -1,17 +1,12 @@
 let
   networkName = "gallery";
-  gallerySrc = fetchGit {
-    url = "https://github.com/wongcallum/gallery.callumwong.com.git";
-    ref = "revival";
-    rev = "6a573fd405a98bbe24735da92efa118511ad6cc3";
-  };
 in
 { inputs, lib, ... }:
 {
   flake.modules.nixos.quadlet-gallery =
     { config, ... }:
     let
-      inherit (config.virtualisation.quadlet) networks builds;
+      inherit (config.virtualisation.quadlet) networks;
     in
     {
       imports = [ inputs.quadlet-nix.nixosModules.quadlet ];
@@ -36,24 +31,6 @@ in
           networkConfig = {
             subnets = [ "172.24.0.0/16" ];
             disableDns = true;
-          };
-        };
-
-        builds.gallery-migrate = lib.mkIf config.modules.containers.gallery {
-          buildConfig = {
-            workdir = "${gallerySrc}";
-            target = "migrator";
-          };
-        };
-
-        builds.gallery-app = lib.mkIf config.modules.containers.gallery {
-          buildConfig = {
-            workdir = "${gallerySrc}";
-          };
-          unitConfig = {
-            # don't build in parallel..
-            Requires = [ "gallery-migrate-build.service" ];
-            After = [ "gallery-migrate-build.service" ];
           };
         };
 
@@ -83,7 +60,7 @@ in
 
         containers.gallery-migrate = lib.mkIf config.modules.containers.gallery {
           containerConfig = {
-            image = builds.gallery-migrate.ref;
+            image = "ghcr.io/wongcallum/gallery.callumwong.com-migrator:master";
             environments = {
               DATABASE_URL = "postgresql://postgres:postgres@172.24.0.2:5432/gallery";
               SKIP_ENV_VALIDATION = "1";
@@ -94,11 +71,9 @@ in
           unitConfig = {
             Requires = [
               "gallery-db.service"
-              "gallery-app-build.service"
             ];
             After = [
               "gallery-db.service"
-              "gallery-app-build.service"
             ];
           };
           serviceConfig = {
@@ -110,7 +85,7 @@ in
 
         containers.gallery-app = lib.mkIf config.modules.containers.gallery {
           containerConfig = {
-            image = builds.gallery-app.ref;
+            image = "ghcr.io/wongcallum/gallery.callumwong.com:master";
             environmentFiles = [ config.sops.secrets."docker/gallery_env".path ];
             environments = {
               DATABASE_URL = "postgresql://postgres:postgres@172.24.0.2:5432/gallery";
