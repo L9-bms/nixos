@@ -1,0 +1,55 @@
+name: Build ISOs
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - "hosts/iso/**"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        iso: [minimal-iso, kde-iso]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Free disk space
+        uses: jlumbroso/free-disk-space@main
+        with:
+          tool-cache: true
+          android: true
+          dotnet: true
+          haskell: true
+          large-packages: true
+          docker-images: true
+          swap-storage: true
+
+      - uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.SECRETS_DEPLOY_KEY }}
+
+      - uses: DeterminateSystems/nix-installer-action@main
+
+      - name: Build ${{ matrix.iso }}
+        run: |
+          nix build .#nixosConfigurations.${{ matrix.iso }}.config.system.build.isoImage --print-build-logs
+          iso_file=$(ls result/iso/*.iso | head -1)
+          echo "ISO_PATH=$iso_file" >> $GITHUB_ENV
+
+      - name: Publish to release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: iso-${{ github.sha }}
+          name: ISO build ${{ github.sha }}
+          files: ${{ env.ISO_PATH }}
+          fail_on_unmatched_files: true

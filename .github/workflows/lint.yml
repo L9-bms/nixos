@@ -1,0 +1,59 @@
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  nixfmt:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-lint-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-lint-
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-lint-
+          purge-created: 0
+          purge-last-accessed: 86400
+          purge-primary-key: never
+      - run: nix run nixpkgs#nixfmt-tree -- --ci
+
+  statix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-lint-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-lint-
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-lint-
+          purge-created: 0
+          purge-last-accessed: 86400
+          purge-primary-key: never
+      - run: nix run nixpkgs#statix -- check .
+
+  deadnix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@main
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-lint-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-lint-
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-lint-
+          purge-created: 0
+          purge-last-accessed: 86400
+          purge-primary-key: never
+      - run: nix run nixpkgs#deadnix -- --fail .

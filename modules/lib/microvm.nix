@@ -86,18 +86,20 @@
           ];
         };
 
-        networking.nat = {
-          enable = true;
-          internalInterfaces = [ hostname ];
-        };
+        networking = {
+          nat = {
+            enable = true;
+            internalInterfaces = [ hostname ];
+          };
 
-        # Block guest-initiated connections to the host
-        networking.firewall.extraCommands = ''
-          iptables -I nixos-fw -i ${hostname} -m conntrack --ctstate NEW -j DROP
-        '';
-        networking.firewall.extraStopCommands = ''
-          iptables -D nixos-fw -i ${hostname} -m conntrack --ctstate NEW -j DROP 2>/dev/null || true
-        '';
+          # Block guest-initiated connections to the host
+          firewall.extraCommands = ''
+            iptables -I nixos-fw -i ${hostname} -m conntrack --ctstate NEW -j DROP
+          '';
+          firewall.extraStopCommands = ''
+            iptables -D nixos-fw -i ${hostname} -m conntrack --ctstate NEW -j DROP 2>/dev/null || true
+          '';
+        };
 
         systemd.tmpfiles.rules = [
           "d ${vmDir} 0755 root root -"

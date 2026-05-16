@@ -12,6 +12,6 @@
   };
 
   config.flake.checks = builtins.mapAttrs (
-    system: deployLib: deployLib.deployChecks self.deploy
+    _: deployLib: deployLib.deployChecks self.deploy
   ) inputs.deploy-rs.lib;
 }

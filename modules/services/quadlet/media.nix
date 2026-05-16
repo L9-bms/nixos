@@ -38,94 +38,96 @@ in
           };
         };
 
-        containers.media-sonarr = lib.mkIf config.modules.containers.media-sonarr (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "ghcr.io/hotio/sonarr:latest";
-              volumes = [
-                "/mnt/media:/data:rw"
-                "${config.utils.dataDir "media/sonarr"}:/config:rw"
-              ];
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.21.0.3";
-            };
-          }
-        );
-
-        containers.media-radarr = lib.mkIf config.modules.containers.media-radarr (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "ghcr.io/hotio/radarr:latest";
-              volumes = [
-                "/mnt/media:/data:rw"
-                "${config.utils.dataDir "media/radarr"}:/config:rw"
-              ];
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.21.0.4";
-            };
-          }
-        );
-
-        containers.media-prowlarr = lib.mkIf config.modules.containers.media-prowlarr (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "ghcr.io/hotio/prowlarr:latest";
-              volumes = [ "${config.utils.dataDir "media/prowlarr"}:/config:rw" ];
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.21.0.5";
-            };
-          }
-        );
-
-        containers.media-flaresolverr = lib.mkIf config.modules.containers.media-flaresolverr (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "ghcr.io/flaresolverr/flaresolverr:latest";
-              environments = {
-                CAPTCHA_SOLVER = "none";
-                LOG_HTML = "false";
-                LOG_LEVEL = "info";
+        containers = {
+          media-sonarr = lib.mkIf config.modules.containers.media-sonarr (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "ghcr.io/hotio/sonarr:latest";
+                volumes = [
+                  "/mnt/media:/data:rw"
+                  "${config.utils.dataDir "media/sonarr"}:/config:rw"
+                ];
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.21.0.3";
               };
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.21.0.6";
-            };
-          }
-        );
+            }
+          );
 
-        containers.media-qbittorrent = lib.mkIf config.modules.containers.media-qbittorrent (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "ghcr.io/hotio/qbittorrent:latest";
-              environments = {
-                WEBUI_PORTS = "11090/tcp";
+          media-radarr = lib.mkIf config.modules.containers.media-radarr (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "ghcr.io/hotio/radarr:latest";
+                volumes = [
+                  "/mnt/media:/data:rw"
+                  "${config.utils.dataDir "media/radarr"}:/config:rw"
+                ];
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.21.0.4";
               };
-              volumes = [
-                "/mnt/media/torrents:/data/torrents:rw"
-                "${config.utils.dataDir "media/qbittorrent"}:/config:rw"
-              ];
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.21.0.2";
-            };
-          }
-        );
+            }
+          );
 
-        containers.media-jellyfin = lib.mkIf config.modules.containers.media-jellyfin (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "jellyfin/jellyfin";
-              notify = "healthy";
-              healthStartPeriod = "30s";
-              volumes = [
-                "/mnt/media/media:/media:rw"
-                "${config.utils.dataDir "media/jellyfin/cache"}:/cache:rw"
-                "${config.utils.dataDir "media/jellyfin/config"}:/config:rw"
-              ];
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.21.0.7";
-              environments.JELLYFIN_PublishedServerUrl = "${jellyfinDomainName}.${config.modules.gateway.tld}";
-            };
-          }
-        );
+          media-prowlarr = lib.mkIf config.modules.containers.media-prowlarr (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "ghcr.io/hotio/prowlarr:latest";
+                volumes = [ "${config.utils.dataDir "media/prowlarr"}:/config:rw" ];
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.21.0.5";
+              };
+            }
+          );
+
+          media-flaresolverr = lib.mkIf config.modules.containers.media-flaresolverr (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "ghcr.io/flaresolverr/flaresolverr:latest";
+                environments = {
+                  CAPTCHA_SOLVER = "none";
+                  LOG_HTML = "false";
+                  LOG_LEVEL = "info";
+                };
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.21.0.6";
+              };
+            }
+          );
+
+          media-qbittorrent = lib.mkIf config.modules.containers.media-qbittorrent (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "ghcr.io/hotio/qbittorrent:latest";
+                environments = {
+                  WEBUI_PORTS = "11090/tcp";
+                };
+                volumes = [
+                  "/mnt/media/torrents:/data/torrents:rw"
+                  "${config.utils.dataDir "media/qbittorrent"}:/config:rw"
+                ];
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.21.0.2";
+              };
+            }
+          );
+
+          media-jellyfin = lib.mkIf config.modules.containers.media-jellyfin (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "jellyfin/jellyfin";
+                notify = "healthy";
+                healthStartPeriod = "30s";
+                volumes = [
+                  "/mnt/media/media:/media:rw"
+                  "${config.utils.dataDir "media/jellyfin/cache"}:/cache:rw"
+                  "${config.utils.dataDir "media/jellyfin/config"}:/config:rw"
+                ];
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.21.0.7";
+                environments.JELLYFIN_PublishedServerUrl = "${jellyfinDomainName}.${config.modules.gateway.tld}";
+              };
+            }
+          );
+        };
       };
     };
 

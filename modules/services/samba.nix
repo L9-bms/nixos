@@ -13,43 +13,45 @@
       config = {
         modules.samba.enable = lib.mkDefault true;
 
-        services.samba = {
-          package = pkgs.samba4Full;
-          enable = true;
-          openFirewall = true;
+        services = {
+          samba = {
+            package = pkgs.samba4Full;
+            enable = true;
+            openFirewall = true;
 
-          # do not forget: # smbpasswd -a username
+            # do not forget: # smbpasswd -a username
 
-          settings =
-            let
-              shares = builtins.mapAttrs (name: path: {
-                path = path;
-                browseable = true;
-                "read only" = false;
-                "guest ok" = false;
-                "follow symlinks" = true;
-                "wide links" = true;
-              }) config.modules.samba.shares;
-            in
-            {
-              global = {
-                "allow insecure wide links" = true;
-              };
-            }
-            // shares;
-        };
+            settings =
+              let
+                shares = builtins.mapAttrs (_: path: {
+                  inherit path;
+                  browseable = true;
+                  "read only" = false;
+                  "guest ok" = false;
+                  "follow symlinks" = true;
+                  "wide links" = true;
+                }) config.modules.samba.shares;
+              in
+              {
+                global = {
+                  "allow insecure wide links" = true;
+                };
+              }
+              // shares;
+          };
 
-        services.avahi = {
-          enable = true;
-          publish.enable = true;
-          publish.userServices = true;
-          nssmdns4 = true;
-          openFirewall = true;
-        };
+          avahi = {
+            enable = true;
+            publish.enable = true;
+            publish.userServices = true;
+            nssmdns4 = true;
+            openFirewall = true;
+          };
 
-        services.samba-wsdd = {
-          enable = true;
-          openFirewall = true;
+          samba-wsdd = {
+            enable = true;
+            openFirewall = true;
+          };
         };
       };
     };

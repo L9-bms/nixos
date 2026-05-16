@@ -129,10 +129,8 @@
                   root * ${
                     pkgs.prism-tower.override {
                       services = map (service: {
-                        name = service.name;
+                        inherit (service) name iconUrl category;
                         url = "https://${fqdn service.domainName}";
-                        iconUrl = service.iconUrl;
-                        category = service.category;
                       }) (builtins.filter (s: !s.hidden) (builtins.attrValues config.modules.gateway.services));
                       links = [
                         {

@@ -39,70 +39,72 @@ in
           };
         };
 
-        containers.ai-searxng = lib.mkIf config.modules.containers.ai-searxng (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "searxng/searxng:latest";
-              volumes = [ "${config.utils.dataDir "searxng"}:/etc/searxng:rw" ];
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.22.0.3";
-              dropCapabilities = [ "ALL" ];
-              addCapabilities = [
-                "CHOWN"
-                "SETGID"
-                "SETUID"
-                "DAC_OVERRIDE"
-              ];
-            };
-          }
-        );
-
-        containers.ai-openwebui = lib.mkIf config.modules.containers.ai-openwebui (
-          config.utils.mkContainer {
-            containerConfig = {
-              image = "ghcr.io/open-webui/open-webui:main-slim";
-              environments = {
-                ENABLE_RAG_WEB_SEARCH = "True";
-                RAG_WEB_SEARCH_ENGINE = "searxng";
-                RAG_WEB_SEARCH_RESULT_COUNT = "3";
-                RAG_WEB_SEARCH_CONCURRENT_REQUESTS = "10";
-                SEARXNG_QUERY_URL = "http://172.22.0.3:8080/search?q=<query>";
-                WEBUI_AUTH = "False";
+        containers = {
+          ai-searxng = lib.mkIf config.modules.containers.ai-searxng (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "searxng/searxng:latest";
+                volumes = [ "${config.utils.dataDir "searxng"}:/etc/searxng:rw" ];
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.22.0.3";
+                dropCapabilities = [ "ALL" ];
+                addCapabilities = [
+                  "CHOWN"
+                  "SETGID"
+                  "SETUID"
+                  "DAC_OVERRIDE"
+                ];
               };
-              networks = [ networks.${networkName}.ref ];
-              ip = "172.22.0.2";
-              publishPorts = [ "8088:8080" ]; # keep here for dad
-              volumes = [
-                "${config.utils.dataDir "open-webui"}:/app/backend/data"
-              ];
-            };
-          }
-        );
+            }
+          );
 
-        containers.ai-copilot-api = lib.mkIf config.modules.containers.ai-copilot-api {
-          containerConfig = {
-            image = builds.copilot-api.ref;
-            networks = [ networks.${networkName}.ref ];
-            ip = "172.22.0.4";
-            publishPorts = [ "4141:4141" ];
-            volumes = [
-              "${config.utils.dataDir "copilot-api"}:/root/.local/share/copilot-api"
-            ];
-          };
-        };
+          ai-openwebui = lib.mkIf config.modules.containers.ai-openwebui (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "ghcr.io/open-webui/open-webui:main-slim";
+                environments = {
+                  ENABLE_RAG_WEB_SEARCH = "True";
+                  RAG_WEB_SEARCH_ENGINE = "searxng";
+                  RAG_WEB_SEARCH_RESULT_COUNT = "3";
+                  RAG_WEB_SEARCH_CONCURRENT_REQUESTS = "10";
+                  SEARXNG_QUERY_URL = "http://172.22.0.3:8080/search?q=<query>";
+                  WEBUI_AUTH = "False";
+                };
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.22.0.2";
+                publishPorts = [ "8088:8080" ]; # keep here for dad
+                volumes = [
+                  "${config.utils.dataDir "open-webui"}:/app/backend/data"
+                ];
+              };
+            }
+          );
 
-        containers.ai-langflow = lib.mkIf config.modules.containers.ai-langflow (
-          config.utils.mkContainer {
+          ai-copilot-api = lib.mkIf config.modules.containers.ai-copilot-api {
             containerConfig = {
-              image = "langflowai/langflow:latest";
+              image = builds.copilot-api.ref;
               networks = [ networks.${networkName}.ref ];
-              ip = "172.22.0.5";
+              ip = "172.22.0.4";
+              publishPorts = [ "4141:4141" ];
               volumes = [
-                "${config.utils.dataDir "langflow"}:/app/langflow"
+                "${config.utils.dataDir "copilot-api"}:/root/.local/share/copilot-api"
               ];
             };
-          }
-        );
+          };
+
+          ai-langflow = lib.mkIf config.modules.containers.ai-langflow (
+            config.utils.mkContainer {
+              containerConfig = {
+                image = "langflowai/langflow:latest";
+                networks = [ networks.${networkName}.ref ];
+                ip = "172.22.0.5";
+                volumes = [
+                  "${config.utils.dataDir "langflow"}:/app/langflow"
+                ];
+              };
+            }
+          );
+        };
 
         builds.copilot-api = lib.mkIf config.modules.containers.ai-copilot-api {
           buildConfig = {
