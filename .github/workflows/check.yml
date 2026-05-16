@@ -21,4 +21,14 @@ jobs:
 
       - uses: DeterminateSystems/nix-installer-action@main
 
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-check-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-check-
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-check-
+          purge-created: 0
+          purge-last-accessed: 86400
+          purge-primary-key: never
+
       - run: nix flake check --no-build --show-trace

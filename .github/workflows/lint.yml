@@ -15,6 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-lint-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-lint-
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-lint-
+          purge-created: 0
+          purge-last-accessed: 86400
+          purge-primary-key: never
       - run: nix run nixpkgs#nixfmt-tree -- --ci
 
   statix:
@@ -22,6 +31,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-lint-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-lint-
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-lint-
+          purge-created: 0
+          purge-last-accessed: 86400
+          purge-primary-key: never
       - run: nix run nixpkgs#statix -- check .
 
   deadnix:
@@ -29,4 +47,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/nix-installer-action@main
+      - uses: nix-community/cache-nix-action@v6
+        with:
+          primary-key: nix-${{ runner.os }}-lint-${{ hashFiles('flake.lock') }}
+          restore-prefixes-first-match: nix-${{ runner.os }}-lint-
+          purge: true
+          purge-prefixes: nix-${{ runner.os }}-lint-
+          purge-created: 0
+          purge-last-accessed: 86400
+          purge-primary-key: never
       - run: nix run nixpkgs#deadnix -- --fail .
