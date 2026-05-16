@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        iso: [minimal-iso, kde-iso]
+        iso: [minimal-iso]
     steps:
       - uses: actions/checkout@v4
 
