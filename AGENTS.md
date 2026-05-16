@@ -1,21 +1,9 @@
-# Instructions for Coding Agents
+# AGENTS.md
 
-## Nix Flake Validation
-
-After making any modifications to Nix flake files (flake.nix, modules, configurations, etc.), always validate the flake by running:
-
-```bash
-nix flake check
-```
-
-This ensures the flake evaluates correctly and catches any syntax or evaluation errors before changes are committed.
-
-## Git Tracking for Nix
-
-After creating new files that are part of the Nix flake (modules, configurations, etc.), always stage them with:
-
-```bash
-git add <file>
-```
-
-Nix can only see files that are tracked in git. Untracked files will not be included when the flake is evaluated, which can cause missing module errors during `nix flake check` or when building.
+- Do NOT deploy automatically.
+- Do not touch the secrets repository or input, just prompt the user to modify them when necessary.
+- Do not commit your changes unless explicitly asked.
+- Run `nix flake check` after modifying the configuration.
+- Run `git add <untracked files>` whenever Nix complains about "path does not exist".
+- Use idiomatic Nix, be inspired by nixpkgs.
+- Don't grep from the entire /nix/store.

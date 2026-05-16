@@ -20,9 +20,12 @@ or, https://github.com/nix-community/disko/blob/master/docs/quickstart.md
 
 ## Edit secrets
 
-`nix run nixpkgs#sops secrets/secrets.yaml`
+`nix run nixpkgs#sops ../nixos-secrets/secrets.yaml`
 
 ## Add new sops host
 
-Edit sops.yaml, and then:
-`nix run nixpkgs#sops updatekeys secrets/secrets.yaml`
+```bash
+nix run nixpkgs#ssh-to-age -- -i /path/to/new/host/.ssh/id_ed25519.pub
+nvim ../nixos-secrets/.sops.yaml # add the new key
+nix run nixpkgs#sops -- updatekeys ../nixos-secrets/secrets.yaml
+```
