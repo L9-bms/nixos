@@ -27,6 +27,8 @@ in
       };
 
       virtualisation.quadlet = {
+        autoUpdate.enable = true;
+
         networks.${networkName} = {
           networkConfig = {
             subnets = [ "172.24.0.0/16" ];
@@ -61,6 +63,7 @@ in
         containers.gallery-migrate = lib.mkIf config.modules.containers.gallery {
           containerConfig = {
             image = "ghcr.io/wongcallum/gallery.callumwong.com-migrator:master";
+            autoUpdate = "registry";
             environments = {
               DATABASE_URL = "postgresql://postgres:postgres@172.24.0.2:5432/gallery";
               SKIP_ENV_VALIDATION = "1";
@@ -86,6 +89,7 @@ in
         containers.gallery-app = lib.mkIf config.modules.containers.gallery {
           containerConfig = {
             image = "ghcr.io/wongcallum/gallery.callumwong.com:master";
+            autoUpdate = "registry";
             environmentFiles = [ config.sops.secrets."docker/gallery_env".path ];
             environments = {
               DATABASE_URL = "postgresql://postgres:postgres@172.24.0.2:5432/gallery";
