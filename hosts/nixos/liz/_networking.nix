@@ -3,35 +3,38 @@ let
   netInterface = "eno1";
 in
 {
-  networking.firewall = {
-    enable = true;
-    allowPing = true;
-    allowedTCPPorts = [
-      22
-      53
-      80
-      443
-      8123
-      7070
-      8887
-      27017
-    ];
+  networking = {
+    firewall = {
+      enable = true;
+      allowPing = true;
+      allowedTCPPorts = [
+        22
+        53
+        80
+        443
+        8123
+        7070
+        8887
+        27017
+      ];
+    };
+    nat.externalInterface = netInterface;
+    useNetworkd = true;
   };
 
-  networking.nat.externalInterface = netInterface;
-
-  systemd.network.wait-online.enable = false;
   boot.initrd.systemd.network.wait-online.enable = false;
 
-  networking.useNetworkd = true;
-  systemd.network.enable = true;
-  systemd.network.networks."10-eth" = {
-    matchConfig.Name = netInterface;
-    address = [ "192.168.0.2/24" ];
-    routes = [
-      { Gateway = "192.168.0.1"; }
-    ];
-    linkConfig.RequiredForOnline = "routable";
+  systemd.network = {
+    wait-online.enable = false;
+    enable = true;
+    networks."10-eth" = {
+      matchConfig.Name = netInterface;
+      address = [ "192.168.0.2/24" ];
+      routes = [
+        { Gateway = "192.168.0.1"; }
+      ];
+      linkConfig.RequiredForOnline = "routable";
+    };
   };
 
   services.resolved = {
