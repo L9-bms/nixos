@@ -4,12 +4,20 @@
     {
       services.grafana = {
         enable = true;
-        settings.server = {
-          http_addr = "127.0.0.1";
-          http_port = 2342;
-          domain = "grafana.${config.modules.gateway.tld}";
-        };
         dataDir = config.utils.dataDir "grafana";
+        settings = {
+          server = {
+            http_addr = "127.0.0.1";
+            http_port = 2342;
+            domain = "grafana.${config.modules.gateway.tld}";
+          };
+          auth.disable_login_form = false;
+          "auth.anonymous" = {
+            enabled = true;
+            org_name = "Main Org.";
+            org_role = "Viewer";
+          };
+        };
       };
 
       fileSystems."/var/lib/${config.services.prometheus.stateDir}" = {
